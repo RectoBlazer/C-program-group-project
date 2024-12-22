@@ -166,8 +166,8 @@ void register_customer() {
     // First name
     printf("Please enter your first name: ");
     scanf("%s", new_customer.first_name);
-    while (strlen(new_customer.first_name) < 3 || alphabetical(new_customer.first_name) == 0) {
-        if (strlen(new_customer.first_name) < 3) {
+    while (strlen(new_customer.first_name) < 2 || alphabetical(new_customer.first_name) == 0) {
+        if (strlen(new_customer.first_name) < 2) {
             printf("First name is too short! , please enter your first name again: ");
         } else if (alphabetical(new_customer.first_name) == 0) {
             printf("First name must be alphabetical! , please enter your first name again: ");
@@ -178,8 +178,8 @@ void register_customer() {
     // Last name
     printf("Please enter your last name: ");
     scanf("%s", new_customer.last_name);
-    while (strlen(new_customer.last_name) < 3 || alphabetical(new_customer.last_name) == 0) {
-        if (strlen(new_customer.last_name) < 3) {
+    while (strlen(new_customer.last_name) < 2 || alphabetical(new_customer.last_name) == 0) {
+        if (strlen(new_customer.last_name) < 2) {
             printf("Last name is too short! , please enter your last name again: ");
         } else if (alphabetical(new_customer.last_name) == 0) {
             printf("Last name must be alphabetical! , please enter your last name again: ");
