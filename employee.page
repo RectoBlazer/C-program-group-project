@@ -1,0 +1,127 @@
+void employee_Page();
+void viewCustomerList();
+void viewAccommodation();
+void registerEmployee();
+int loginEmployee();
+
+int loginEmployee() {
+    char username[MAX_NAME_LENGTH], password[MAX_NAME_LENGTH];
+
+    printf("\n=== Employee Login ===\n");
+    printf("Enter your username: ");
+    fgets(username, sizeof(username), stdin);
+    username[strcspn(username, "\n")] = '\0';
+
+    printf("Enter your password: ");
+    fgets(password, sizeof(password), stdin);
+    password[strcspn(password, "\n")] = '\0';
+
+    for (int i = 0; i < userCount; i++) {
+        if (strcmp(users[i].username, username) == 0 && strcmp(users[i].password, password) == 0) {
+            if (strcmp(users[i].role, "Employee") == 0) {
+                printf("\nLogin successful. Welcome, %s!\n", users[i].name);
+                employee_Page();
+                return 1;
+            } else {
+                printf("\nAccess denied. Only employees are allowed to log in.\n");
+                return 0;
+            }
+        }
+    }
+
+    printf("\nInvalid username or password. Please try again.\n");
+    return 0;
+}
+
+void employee_Page() {
+    int choice;
+
+    while (1) {
+        printf("\n=== Employee Page ===\n");
+        printf("1. View List of Customers\n");
+        printf("2. View List of Accommodations\n");
+        printf("3. Logout\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        getchar();
+
+        switch (choice) {
+            case 1:
+                viewCustomerList();
+                break;
+            case 2:
+                viewAccommodation();
+                break;
+            case 3:
+                printf("\nLogging out from Employee Page.\n");
+                return;
+            default:
+                printf("\nInvalid choice. Please select a valid option.\n");
+        }
+    }
+}
+
+void viewCustomerList() {
+    int found = 0;
+
+    printf("\n--- Customer List ---\n");
+    for (int i = 0; i < userCount; i++) {
+        if (strcmp(users[i].role, "Customer") == 0) {
+            found = 1;
+            printf("Name: %s\n", users[i].name);
+            printf("Contact: %s\n", users[i].contact);
+            printf("--------------------------\n");
+        }
+    }
+
+    if (!found) {
+        printf("\nNo customers found.\n");
+    }
+}
+
+void viewAccommodation() {
+    if (accommodationCount == 0) {
+        printf("\nsorry.No accommodations available.\n");
+        return;
+    }
+
+    printf("\n--- List of Accommodations ---\n");
+    for (int i = 0; i < accommodationCount; i++) {
+        printf("Room ID: %d\n", accommodations[i].roomID);
+        printf("Room Type: %s\n", accommodations[i].roomType);
+        printf("Price: %.2f\n", accommodations[i].price);
+        printf("Status: %s\n", accommodations[i].available ? "Available" : "Booked");
+        printf("--------------------------\n");
+    }
+}
+
+void registerEmployee() {
+    if (userCount >= MAX_USERS) {
+        printf("\nUser limit reached. Cannot register more employees.\n");
+        return;
+    }
+
+    User newUser;
+
+    printf("\n=== Register Employee ===\n");
+    printf("Enter your name: ");
+    fgets(newUser.name, sizeof(newUser.name), stdin);
+    newUser.name[strcspn(newUser.name, "\n")] = '\0';
+
+    printf("Enter your contact: ");
+    fgets(newUser.contact, sizeof(newUser.contact), stdin);
+    newUser.contact[strcspn(newUser.contact, "\n")] = '\0';
+
+    printf("Enter a username: ");
+    fgets(newUser.username, sizeof(newUser.username), stdin);
+    newUser.username[strcspn(newUser.username, "\n")] = '\0';
+
+    printf("Enter a password: ");
+    fgets(newUser.password, sizeof(newUser.password), stdin);
+    newUser.password[strcspn(newUser.password, "\n")] = '\0';
+
+    strcpy(newUser.role, "Employee");
+    users[userCount++] = newUser;
+
+    printf("\nEmployee registered successfully!\n");
+}
