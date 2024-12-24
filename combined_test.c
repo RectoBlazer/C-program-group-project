@@ -372,6 +372,157 @@ void cust_menu() {
     }
 }
 
+//checking if a string is numerical or not
+int numeric(char ch[15]){
+    for (int i = 0; i < strlen(ch); i++) { 
+         if (!isdigit(ch[i])){
+            return 0;
+         }
+    }
+    return 1;
+    
+}
+
+//checking if a string is alphabetical or not
+int alphabetical(char ch[15]){
+    for (int i = 0; i < strlen(ch); i++) { 
+         if (!isalpha(ch[i])){
+            return 0;
+         }
+    }
+    return 1;
+    
+}
+
+//checking if email valid or not
+int check_email(char email[40]) {
+    int count_at = 0; // To count the occurance of '@'
+    int count_dot = 0; // To check if '.' exists after '@' or not
+    int length = strlen(email);
+
+    if (length < 5) return 0;
+
+    for (int i = 0; i < length; i++) {
+        if (email[i] == '@') {
+            count_at++;
+            // '@' should not be at the start or end
+            if (i == 0 || i == length - 1) return 0;
+        }
+        if (count_at > 0 && email[i] == '.') {
+            count_dot = 1; // Found '.' after '@'
+        }
+    }
+
+    if (count_at == 1 && count_dot) {
+        return 1;
+    }
+    return 0;
+}
+
+//checking if birthday is valid or not
+int check_birthday(char birthday[12]){
+    if (strlen(birthday) != 10) {
+        return 0;
+    }
+
+    char DD[3] = {birthday[0], birthday[1], '\0'};
+    char MM[3] = {birthday[3], birthday[4], '\0'};
+    char YYYY[5] = {birthday[6], birthday[7], birthday[8], birthday[9], '\0'};
+
+    if (numeric(DD) == 0 || numeric(MM) == 0 || numeric(YYYY) == 0 ||
+        birthday[2] != '/' || birthday[5] != '/') {
+        return 0;
+    }
+
+    int day = atoi(DD);
+    int month = atoi(MM);
+    int year = atoi(YYYY);
+
+    if (day < 1 || day > 31 || month < 1 || month > 12 || year < 1900 || year > 2100) {
+        return 0;
+    }
+    return 1;
+}
+
+//checking passport number if it's valid or not
+int check_passport(char passport_num[10]){
+    if (strlen(passport_num)<6 || strlen(passport_num)>9){
+        return 0;
+    }
+    for (int i=0; i<strlen(passport_num); i++){
+        if(!isalnum(passport_num[i])){
+            return 0;
+        }
+    }
+    return 1;
+}
+
+//checking password if it's valid or not
+int check_password(char password[25]){
+    int s=0;
+    for (int i=0; i<strlen(password);i++){
+        if(!isalnum(password[i])){
+            s++;
+        }
+    }
+    if (s!=0){return 1;}
+    else return 0;
+}
+
+// Checking if email exists or not
+int exist_email(const char *email) {
+    Customer existing_customer;
+    FILE *file = fopen("customers.dat", "rb");
+    if (!file) {
+        printf("Error opening file!\n");
+        return 0;
+    }
+
+    while (fread(&existing_customer, sizeof(Customer), 1, file) == 1) {
+        if (strcmp(existing_customer.email, email) == 0) {
+            fclose(file);
+            return 1;
+        }
+    }
+
+    fclose(file);
+    return 0;
+}
+
+// Checking if the entered password is correct or not
+int correct_password(const char *email, const char *password) {
+    Customer existing_customer;
+    FILE *file = fopen("customers.dat", "rb");
+    if (!file) {
+        printf("Error opening file!\n");
+        return 0;
+    }
+
+    while (fread(&existing_customer, sizeof(Customer), 1, file) == 1) {
+        if (strcmp(existing_customer.email, email) == 0) {
+            fclose(file);
+            return strcmp(existing_customer.password, password) == 0;
+        }
+    }
+
+    fclose(file);
+    return 0;
+}
+
+// Checking if passport number exists or not
+int exist_passport(char passport[10]) {
+    Customer existing_customer;
+    FILE *file = fopen("customers.dat", "rb");
+    
+
+    while (fread(&existing_customer, sizeof(Customer), 1, file) == 1) {
+        if (strcmp(existing_customer.passport_num, passport) == 0) {
+            fclose(file);
+            return 1;  }
+
+    fclose(file);
+    return 0; }}
+
 void register_customer() {
     printf("\t\t\t*** Register customer ***\n");
     printf("\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
