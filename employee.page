@@ -37,7 +37,7 @@ void employee_Page() {
     int choice;
 
     while (1) {
-        printf("\n=== Employee Page ===\n");
+        printf("\n___Employee Page___\n");
         printf("1. View List of Customers\n");
         printf("2. View List of Accommodations\n");
         printf("3. Logout\n");
