@@ -932,4 +932,339 @@ void bill_information() {
              printf("Accommodation ID: %d\n", booking.accommodationID);
              printf("Check-In Date: %s\n", booking.checkInDate);
              printf("Check-Out Date: %s\n", booking.checkOutDate);
-             //printf("Total Amount: $%.2f\n", booking.totalAmount); // the
+              //printf("Total Amount: $%.2f\n", booking.totalAmount); // the total amount should be calculated per night
+              found = 1;
+              break;
+          }
+      }
+  
+      fclose(file);
+  
+      if (!found) {
+          printf("You have not booked any accommodation.\n");
+      }
+  }
+
+  // Function to check if a customer is registered
+  int is_customer_registered(const char *customer_name) {
+      Customer existing_customer;
+      FILE *file = fopen("customers.dat", "rb");
+      if (!file) {
+          printf("Error opening file!\n");
+          return 0;
+      }
+  
+      while (fread(&existing_customer, sizeof(Customer), 1, file) == 1) {
+          char full_name[D_FIRST_NAME + D_LAST_NAME + 2];
+          sprintf(full_name, "%s %s", existing_customer.first_name, existing_customer.last_name);
+          if (strcmp(full_name, customer_name) == 0) {
+              fclose(file);
+              return 1;
+          }
+      }
+  
+      fclose(file);
+      return 0;
+  }
+
+  // Function to validate date format
+  int is_valid_date(const char *date) {
+      int day, month, year;
+  
+      // Check if the date matches the format "DD/MM/YYYY"
+      if (sscanf(date, "%d/%d/%d", &day, &month, &year) != 3) {
+          return 0; // Invalid format
+      }
+  
+      // Validate year
+      if (year < 1900 || year > 2100) {
+          return 0;
+      }
+  
+      // Validate month
+      if (month < 1 || month > 12) {
+          return 0;
+      }
+  
+      return 1; // Date is valid
+  }
+
+  // Function to compare two dates in DD/MM/YYYY format
+  // Returns -1 if date1 < date2, 0 if date1 == date2, 1 if date1 > date2
+  int compare_dates(const char *date1, const char *date2) {
+      int day1, month1, year1, day2, month2, year2;
+  
+      sscanf(date1, "%d/%d/%d", &day1, &month1, &year1);
+      sscanf(date2, "%d/%d/%d", &day2, &month2, &year2);
+  
+      if (year1 != year2) {
+          return (year1 < year2) ? -1 : 1;
+      }
+      if (month1 != month2) {
+          return (month1 < month2) ? -1 : 1;
+      }
+      if (day1 != day2) {
+          return (day1 < day2) ? -1 : 1;
+      }
+      return 0; // Dates are equal
+  }
+
+  // Structure that contains the reserved dates of each room
+  typedef struct {
+      int accommodationID;              // Unique ID for the accommodation
+      char reservedDates[100][15];      // An array for reserved dates 
+      int reservedCount;                // Number of reserved dates for each room
+  } Reservation;
+
+  int is_date_reserved(int accommodationID, const char *date) {
+      FILE *file = fopen("reservations.dat", "rb");
+      if (!file) {
+          return 0; // No reservations exist
+      }
+  
+      Reservation reservation;
+      while (fread(&reservation, sizeof(Reservation), 1, file) == 1) {
+          if (reservation.accommodationID == accommodationID) {
+              for (int i = 0; i < reservation.reservedCount; i++) {
+                  if (strcmp(reservation.reservedDates[i], date) == 0) {
+                      fclose(file);
+                      return 1; // Date is reserved
+                  }
+              }
+              break;
+          }
+      }
+  
+      fclose(file);
+      return 0; // Date is not reserved
+  }
+
+  void add_reservation(int accommodationID, const char *date) {
+      FILE *file = fopen("reservations.dat", "rb+");
+      if (!file) {
+          printf("Creating a new reservations file.\n");
+          file = fopen("reservations.dat", "wb+");
+      }
+  
+      Reservation reservation;
+      int found = 0;
+  
+      while (fread(&reservation, sizeof(Reservation), 1, file) == 1) {
+          if (reservation.accommodationID == accommodationID) {
+              found = 1;
+  
+              // Check if date is already reserved
+              for (int i = 0; i < reservation.reservedCount; i++) {
+                  if (strcmp(reservation.reservedDates[i], date) == 0) {
+                      printf("Date %s is already reserved for Accommodation ID %d.\n", date, accommodationID);
+                      fclose(file);
+                      return;
+                  }
+              }
+  
+              // Add the new date
+              strcpy(reservation.reservedDates[reservation.reservedCount], date);
+              reservation.reservedCount++;
+ 
+              // Update the file
+              fseek(file, -sizeof(Reservation), SEEK_CUR);
+              fwrite(&reservation, sizeof(Reservation), 1, file);
+  
+              fclose(file);
+              return;
+          }
+      }
+  
+      // If no reservation record exists for the accommodation, create a new one
+      if (!found) {
+          Reservation new_reservation;
+          new_reservation.accommodationID = accommodationID;
+          new_reservation.reservedCount = 1;
+          strcpy(new_reservation.reservedDates[0], date);
+  
+          fwrite(&new_reservation, sizeof(Reservation), 1, file);
+      }
+  
+      fclose(file);
+  }
+
+  void get_next_date(const char *current_date, char *next_date) {
+      int day, month, year;
+      sscanf(current_date, "%d/%d/%d", &day, &month, &year);
+  
+      // Advance the day
+      day++;
+  
+      // Adjust for month-end
+      if ((month == 2 && day > 28) || 
+          (month == 4 || month == 6 || month == 9 || month == 11) && day > 30 || // 30-day months
+          day > 31) {  // 31-day months
+          day = 1;
+          month++;
+      }
+ 
+      // Adjust for year-end
+      if (month > 12) {
+          month = 1;
+          year++;
+      }
+  
+      sprintf(next_date, "%02d/%02d/%04d", day, month, year);
+  }
+
+  int is_booking_id_exist(int bookingID) {
+      struct Booking existing_booking;
+      FILE *file = fopen("bookings.dat", "rb");
+      if (!file) {
+          return 0; // File doesn't exist, so ID cannot exist
+      }
+  
+      while (fread(&existing_booking, sizeof(struct Booking), 1, file) == 1) {
+          if (existing_booking.bookingID == bookingID) {
+              fclose(file);
+              return 1; // ID exists
+          }
+      }
+  
+      fclose(file);
+      return 0; // ID does not exist
+  }
+
+  int generate_unique_booking_id() {
+      int new_id;
+      srand(time(NULL)); // Seed for random number generation
+  
+      do {
+          new_id = rand() % 100000; // Generate a random ID (5 digits max)
+      } while (is_booking_id_exist(new_id));
+  
+      return new_id;
+  }
+
+  // Booking function 
+  int booking() {
+      char customer_name[50];
+      printf("\nEnter Booking Details:\n");
+      printf("Customer Name (First Last): ");
+      scanf(" %[^\n]s", customer_name);
+  
+      // Check if the customer is registered
+      if (!is_customer_registered(customer_name)) {
+          int choice;
+          printf("Customer is not registered. Please register before booking.\n");
+          printf("1. customer menu \n");
+          printf("2. main menu\n"); 
+          printf("3. exit");
+          printf("\n enter your choice: ");
+          scanf("%d", &choice);
+          while(!(choice >= 1 && choice <= 4)){
+              printf("Invalid choice, please try again (must be between 1 and 4): ");
+              scanf("%d", &choice);
+          }
+          switch (choice) {
+              case 1:
+                  cust_menu();
+                  break;
+              case 2:
+                  MainMenu();
+                  break;
+              case 3:
+                  printf("\nThank you, bye!\n");
+                  break;
+          }
+      }
+  
+      // Proceed with booking if the customer is registered
+      struct Booking new_booking;
+  
+      new_booking.bookingID = generate_unique_booking_id();
+      strcpy(new_booking.customerName, customer_name);
+  
+      printf("\nEnter Accommodation ID: ");
+      scanf("%d", &new_booking.accommodationID);
+  
+      // Input and validate check-in date
+      printf("\nEnter Check-In Date (DD/MM/YYYY): ");
+      scanf("%s", new_booking.checkInDate);
+      while (!is_valid_date(new_booking.checkInDate)) {
+          printf("Invalid date format! Please enter a valid Check-In Date (DD/MM/YYYY): ");
+          scanf("%s", new_booking.checkInDate);
+      }
+  
+      // Input and validate check-out date
+      printf("\nEnter Check-Out Date (DD/MM/YYYY): ");
+      scanf("%s", new_booking.checkOutDate);
+      while (!is_valid_date(new_booking.checkOutDate)) {
+          printf("Invalid date format! Please enter a valid Check-Out Date (DD/MM/YYYY): ");
+          scanf("%s", new_booking.checkOutDate);
+      }
+  
+      // Ensure check-in date is before check-out date
+      while (compare_dates(new_booking.checkInDate, new_booking.checkOutDate) >= 0) {
+          printf("Check-Out Date must be later than Check-In Date!\n");
+          printf("\nRe-enter Check-Out Date (DD/MM/YYYY): ");
+          scanf("%s", new_booking.checkOutDate);
+  
+          while (!is_valid_date(new_booking.checkOutDate)) {
+              printf("Invalid date format! Please enter a valid Check-Out Date (DD/MM/YYYY): ");
+              scanf("%s", new_booking.checkOutDate);
+          }
+      }
+      // Check if the dates are available
+      char current_date[15], next_date[15];
+      strcpy(current_date, new_booking.checkInDate);
+  
+      while (strcmp(current_date, new_booking.checkOutDate) <= 0) {
+          if (is_date_reserved(new_booking.accommodationID, current_date)) {
+              printf("Sorry, the date %s is already reserved.\n", current_date);
+              return 0;  
+          }
+          get_next_date(current_date, next_date);
+          strcpy(current_date, next_date);
+      }
+  
+      // Add all dates to the reservations
+      strcpy(current_date, new_booking.checkInDate);
+      while (strcmp(current_date, new_booking.checkOutDate) <= 0) {
+          add_reservation(new_booking.accommodationID, current_date);
+          get_next_date(current_date, next_date);
+          strcpy(current_date, next_date);
+      }
+  
+      // Save the booking
+      FILE *file = fopen("bookings.dat", "ab");
+      if (!file) {
+          printf("Error opening file to save booking data!\n");
+          return 0;
+      }
+  
+      fwrite(&new_booking, sizeof(struct Booking), 1, file);
+      fclose(file);
+  
+      printf("Booking saved successfully! Your Booking ID is: %d\n", new_booking.bookingID);
+      return 1;
+  }
+
+  // Function to view all reservations
+  void view_reservations() {
+      FILE *file = fopen("reservations.dat", "rb");
+      if (!file) {
+          printf("No reservations found.\n");
+          return;
+      }
+  
+      Reservation reservation;
+      printf("\t\t\t*** Reservations ***\n");
+      printf("\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+  
+      while (fread(&reservation, sizeof(Reservation), 1, file) == 1) {
+          printf("Accommodation ID: %d\n", reservation.accommodationID);
+          printf("Reserved Dates: ");
+          for (int i = 0; i < reservation.reservedCount; i++) {
+              printf("%s ", reservation.reservedDates[i]);
+          }
+          printf("\n\n");
+      }
+  
+      fclose(file);
+  }
