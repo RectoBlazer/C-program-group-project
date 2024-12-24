@@ -2,6 +2,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
+#include <time.h>
 
 // Define common structures and constants
 #define MAX_NAME_LENGTH 50
@@ -42,6 +43,20 @@ typedef struct {
     char role[MAX_NAME_LENGTH];
 } User;
 
+typedef struct {
+    int bookingID;
+    int accommodationID;
+    char customerName[50];
+    char checkInDate[15];
+    char checkOutDate[15];
+} Booking;
+
+typedef struct {
+    int accommodationID;              // Unique ID for the accommodation
+    char reservedDates[100][15];      // An array for reserved dates 
+    int reservedCount;                // Number of reserved dates for each room
+} Reservation;
+
 User users[MAX_USERS];
 int userCount = 0;
 Accommodation accommodations[MAX_USERS];
@@ -60,30 +75,27 @@ void cust_menu();
 int login_customer();
 void register_customer();
 void bill_information();
+int is_customer_registered(const char *customer_name);
+int is_date_reserved(int accommodationID, const char *date);
+void add_reservation(int accommodationID, const char *date);
+void get_next_date(const char *current_date, char *next_date);
+int is_booking_id_exist(int bookingID);
+int generate_unique_booking_id();
+int booking();
+void view_reservations();
+int alphabetical(char ch[15]);
+int check_birthday(char birthday[12]);
+int check_email(char email[40]);
+int exist_email(const char *email);
+int check_passport(char passport_num[10]);
+int exist_passport(char passport[10]);
+int numeric(char ch[15]);
+int check_password(char password[25]);
+int correct_password(const char *email, const char *password);
+int compare_dates(const char *date1, const char *date2);
+int is_valid_date(const char *date);
 
-int main() {
-    int choice;
-    MainMenu();
-    scanf("%d", &choice);
-    while (!(choice >= 1 && choice <= 4)) {
-        printf("Invalid choice, please try again (must be between 1 and 4): ");
-        scanf("%d", &choice);
-    }
-    switch (choice) {
-        case 1:
-            adm_menu();
-            break;
-        case 2:
-            empl_menu();
-            break;
-        case 3:
-            cust_menu();
-            break;
-        case 4:
-            printf("Exiting the system. Goodbye!\n");
-    }
-    return 0;
-}
+
 
 int MainMenu() {
     printf("\t\t\t***Welcome to the Hotel Management System!***\n");
@@ -1268,3 +1280,27 @@ void bill_information() {
   
       fclose(file);
   }
+
+  int main() {
+    int choice;
+    MainMenu();
+    scanf("%d", &choice);
+    while (!(choice >= 1 && choice <= 4)) {
+        printf("Invalid choice, please try again (must be between 1 and 4): ");
+        scanf("%d", &choice);
+    }
+    switch (choice) {
+        case 1:
+            adm_menu();
+            break;
+        case 2:
+            empl_menu();
+            break;
+        case 3:
+            cust_menu();
+            break;
+        case 4:
+            printf("Exiting the system. Goodbye!\n");
+    }
+    return 0;
+}
