@@ -74,7 +74,10 @@ void registerEmployee();
 int loginEmployee();
 int MainMenu();
 void cust_menu();
+void register_Hotel_Administrator();
+void login_Hotel_Administrator();
 int login_customer();
+void view_list_information_accommodation();
 void register_customer();
 void bill_information();
 int is_customer_registered(const char *customer_name);
@@ -125,10 +128,10 @@ int adm_menu() {
     }
     switch (choice) {
         case 1:
-            // register_Hotel_Administrator();
+            register_Hotel_Administrator();
             break;
         case 2:
-            // login_Hotel_Administrator();
+            login_Hotel_Administrator();
             break;
         case 3:
             record_accommodation();
@@ -165,6 +168,75 @@ int empl_menu() {
             break;
     }
     return 0;
+}
+
+void register_Hotel_Administrator() {
+    if (userCount >= MAX_USERS) {
+        printf("\nUser limit reached. Cannot register more administrators.\n");
+        return;
+    }
+
+    User newUser;
+
+    printf("\n=== Register Hotel Administrator ===\n");
+
+    // Clear the input buffer
+    while (getchar() != '\n');
+
+    printf("Enter your name: ");
+    fgets(newUser.name, sizeof(newUser.name), stdin);
+    newUser.name[strcspn(newUser.name, "\n")] = '\0';
+
+    printf("Enter your contact: ");
+    fgets(newUser.contact, sizeof(newUser.contact), stdin);
+    newUser.contact[strcspn(newUser.contact, "\n")] = '\0';
+
+    printf("Enter a username: ");
+    fgets(newUser.username, sizeof(newUser.username), stdin);
+    newUser.username[strcspn(newUser.username, "\n")] = '\0';
+
+    printf("Enter a password: ");
+    fgets(newUser.password, sizeof(newUser.password), stdin);
+    newUser.password[strcspn(newUser.password, "\n")] = '\0';
+
+    strcpy(newUser.role, "Hotel Administrator");
+    users[userCount++] = newUser;
+
+    printf("\nHotel Administrator registered successfully!\n");
+    MainMenu();
+}
+
+void login_Hotel_Administrator() {
+    char username[MAX_NAME_LENGTH], password[MAX_NAME_LENGTH];
+
+    printf("\n__Hotel Administrator Login __\n");
+
+    // Clear the input buffer
+    while (getchar() != '\n');
+
+    printf("Enter your username: ");
+    fgets(username, sizeof(username), stdin);
+    username[strcspn(username, "\n")] = '\0';  // Remove newline character
+
+    printf("Enter your password: ");
+    fgets(password, sizeof(password), stdin);
+    password[strcspn(password, "\n")] = '\0';  // Remove newline character
+
+    for (int i = 0; i < userCount; i++) {
+        if (strcmp(users[i].username, username) == 0 && strcmp(users[i].password, password) == 0) {
+            if (strcmp(users[i].role, "Hotel Administrator") == 0) {
+                printf("\nLogin successful. Welcome, %s!\n", users[i].name);
+                // Call the admin-specific functions or menu here
+                return;
+            } else {
+                printf("\nAccess denied. Only Hotel Administrators are allowed to log in.\n");
+                return;
+            }
+        }
+    }
+
+    printf("\nInvalid username or password. Please try again.\n");
+    MainMenu();
 }
 
 void record_accommodation() {
@@ -659,7 +731,7 @@ int login_customer() {
     }
     switch (choice) {
         case 1:
-            // view_list_information_accommodation();
+            view_list_information_accommodation();
             break;
         case 2:
             view_reservations();
@@ -674,6 +746,23 @@ int login_customer() {
             MainMenu();
     }
     return 0;
+}
+
+void view_list_information_accommodation() {
+    if (accommodationCount == 0) {
+        printf("\nSorry. No accommodations available.\n");
+        return;
+    }
+
+    printf("\n--- List of Accommodations ---\n");
+    for (int i = 0; i < accommodationCount; i++) {
+        printf("Accommodation ID: %d\n", accommodations[i].accommodationID);
+        printf("Type: %s\n", accommodations[i].type);
+        printf("Description: %s\n", accommodations[i].description);
+        printf("Price per Night: %.2f\n", accommodations[i].price);
+        printf("Status: %s\n", accommodations[i].Available ? "Available" : "Booked");
+        printf("--------------------------\n");
+    }
 }
 
 void bill_information() {
