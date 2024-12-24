@@ -7,7 +7,7 @@ int loginEmployee();
 int loginEmployee() {
     char username[MAX_NAME_LENGTH], password[MAX_NAME_LENGTH];
 
-    printf("\n=== Employee Login ===\n");
+    printf("\n__Employee Login __\n");
     printf("Enter your username: ");
     fgets(username, sizeof(username), stdin);
     username[strcspn(username, "\n")] = '\0';
