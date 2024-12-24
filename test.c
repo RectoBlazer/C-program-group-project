@@ -368,25 +368,28 @@ int main(){
                 }
                 break;
                 case 2:
-                printf("You selected: Employee\n");
+                printf("========== Employee Menu ==========\n");
                 printf("1. Register\n");
                 printf("2. Login\n");
-                printf("3. Back to main menu\n");
-                printf("Please enter your choice: :");
+                printf("3. Back to main menu.\n");
+                printf("Please enter your choice: ");
                 scanf("%d", &choice2);
                 while(!(choice2>=1 && choice2<=3)){
                 printf("Invalid choice, please try again(must be between 1 and 3): ");
                 scanf("%d",&choice2);}
-                switch (choice2)
-                {
+                switch (choice2) {
                     case 1:
-                    //register_employee();
-                    break;
+                        printf("\nYou selected: Register\n");
+                        // register_employee();
+                        break;
                     case 2:
-                    //login_employee();
-                    break;
+                        printf("\nYou selected: Login\n");
+                        // Call the function to log in as an employee
+                        // login_employee();
+                        break;
                     case 3:
-                    break;
+                        printf("\nReturning to the Main Menu..\n");
+                        break;
                 }
                break;
                case 3:
