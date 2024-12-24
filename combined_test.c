@@ -51,11 +51,12 @@ typedef struct {
     char checkOutDate[15];
 } Booking;
 
-typedef struct {
-    int accommodationID;              // Unique ID for the accommodation
-    char reservedDates[100][15];      // An array for reserved dates 
-    int reservedCount;                // Number of reserved dates for each room
-} Reservation;
+ // Structure that contains the reserved dates of each room
+ typedef struct {
+     int accommodationID;              // Unique ID for the accommodation
+     char reservedDates[100][15];      // An array for reserved dates 
+     int reservedCount;                // Number of reserved dates for each room
+ } Reservation;
 
 User users[MAX_USERS];
 int userCount = 0;
@@ -96,6 +97,14 @@ int compare_dates(const char *date1, const char *date2);
 int is_valid_date(const char *date);
 
 
+// Structure for Booking
+ struct Booking {
+     int bookingID;
+     int accommodationID;
+     char customerName[50];
+     char checkInDate[15];
+     char checkOutDate[15];
+ };
 
 int MainMenu() {
     printf("\t\t\t***Welcome to the Hotel Management System!***\n");
@@ -562,40 +571,7 @@ void bill_information() {
          printf("You have not booked any accommodation.\n");
      }
  }
- 
- // Function to check if a customer is registered
- int is_customer_registered(const char *customer_name);
- 
- // Function to check if a specific date is reserved
- int is_date_reserved(int accommodationID, const char *date);
 
- // Function to add a reservation
- void add_reservation(int accommodationID, const char *date);
- 
- // Function to calculate the next date in DD/MM/YYYY format
- void get_next_date(const char *current_date, char *next_date);
- 
- // Function to check if a booking ID exists in the file
- int is_booking_id_exist(int bookingID);
- 
- // Function to generate a unique booking ID
- int generate_unique_booking_id();
- 
- // Function to handle the booking process
- int booking();
- 
- // Function to view all reservations
- void view_reservations();
- 
- // Structure for Booking
- struct Booking {
-     int bookingID;
-     int accommodationID;
-     char customerName[50];
-     char checkInDate[15];
-     char checkOutDate[15];
- };
- 
  int is_customer_registered(const char *customer_name) {
      Customer existing_customer;
      FILE *file = fopen("customers.dat", "rb");
@@ -658,13 +634,6 @@ void bill_information() {
      }
      return 0; // Dates are equal
  }
- 
- // Structure that contains the reserved dates of each room
- typedef struct {
-     int accommodationID;              // Unique ID for the accommodation
-     char reservedDates[100][15];      // An array for reserved dates 
-     int reservedCount;                // Number of reserved dates for each room
- } Reservation;
  
  int is_date_reserved(int accommodationID, const char *date) {
      FILE *file = fopen("reservations.dat", "rb");
@@ -918,44 +887,6 @@ void bill_information() {
  
      fclose(file);
  }
- // Bill function
- void bill_information() {
-     printf("\t\t\t*** Bill Information ***\n");
-     printf("\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
- 
-     char customer_name[50];
-     printf("Enter your name (First Last): ");
-     scanf(" %[^\n]s", customer_name);
- 
-     struct Booking booking;
-     int found = 0;
- 
-     FILE *file = fopen("bookings.dat", "rb");
-     if (!file) {
-         printf("Error opening booking file!\n");
-         return;
-     }
- 
-     // Search for the customer's booking
-     while (fread(&booking, sizeof(struct Booking), 1, file) == 1) {
-         if (strcmp(booking.customerName, customer_name) == 0) {
-             printf("\n~~~~~ Booking Details ~~~~~\n");
-             printf("Booking ID: %d\n", booking.bookingID);
-             printf("Accommodation ID: %d\n", booking.accommodationID);
-             printf("Check-In Date: %s\n", booking.checkInDate);
-             printf("Check-Out Date: %s\n", booking.checkOutDate);
-              //printf("Total Amount: $%.2f\n", booking.totalAmount); // the total amount should be calculated per night
-              found = 1;
-              break;
-          }
-      }
-  
-      fclose(file);
-  
-      if (!found) {
-          printf("You have not booked any accommodation.\n");
-      }
-  }
 
   // Function to check if a customer is registered
   int is_customer_registered(const char *customer_name) {
