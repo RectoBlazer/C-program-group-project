@@ -113,50 +113,42 @@ int validatePassword(const char *password);
 
 void empl_menu(); // Forward declaration for the employee menu
 void admin_menu(); // Forward declaration for the admin menu
-void customer_menu(); // Forward declaration for the customer menu
+void cust_menu(); // Forward declaration for the customer menu
 
-int MainMenu() {
-    int choice;
-
-    while (1) {
-        printf("\t\t\t***Welcome to the Hotel Management System!***\n");
-        printf("\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+int MainMenu(){
+    int choice1, choice2;
+    while(1){
+        printf("\t\t\t*** Welcome to the Hotel Management System! ***\n");
+        printf("\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
         printf("Please select your role:\n");
         printf("1. Hotel Administrator\n");
         printf("2. Employee\n");
         printf("3. Customer\n");
         printf("4. Exit\n");
         printf("Please select a number between 1 and 4: ");
-
-        // Handle input validation
-        if (scanf("%d", &choice) != 1) {
-            // Clear the input buffer if the input is invalid
-            while (getchar() != '\n');
-            printf("\nInvalid input. Please enter a number between 1 and 4.\n");
-            continue; // Re-display the menu
+        scanf("%d", &choice1);
+        while(!(choice1>=1 && choice1<=4)){
+            printf("Invalid choice, please try again(must be between 1 and 4): ");
+            scanf("%d",&choice1);
         }
-
-        // Handle user choices
-        switch (choice) {
-            case 1:
-                 // Call Hotel Administrator menu
+         switch (choice1) {
+                case 1:
+                admin_menu();
                 break;
-            case 2:
-                empl_menu(); // Call Employee menu
+                case 2:
+                empl_menu();
                 break;
-            case 3:
-                // Call Customer menu
+                case 3:
+                cust_menu();
                 break;
-            case 4:
-                printf("\nExiting program. Goodbye!\n");
-                return 0; // Exit the program
-            default:
-                printf("\nInvalid choice. Please select a number between 1 and 4.\n");
+               case 4:
+               printf("Exiting the system. Goodbye!\n");
+               return 0;
         }
     }
 }
 
-int adm_menu() {
+void admin_menu() {
     int choice;
     printf("You selected: Hotel Administrator\n");
     printf("1. Register\n");
@@ -186,7 +178,6 @@ int adm_menu() {
         case 5:
             break;
     }
-    return 0;
 }
 
 void empl_menu() {
@@ -198,14 +189,12 @@ void empl_menu() {
         printf("2. Login\n");
         printf("3. Back to Main Menu\n");
         printf("Enter your choice: ");
+        scanf("%d", &choice);
+        while (!(choice >= 1 && choice <= 3)) {
+        printf("Invalid choice, please try again (must be between 1 and 3): ");
+        scanf("%d", &choice);
+    }
 
-        if (scanf("%d", &choice) != 1) {
-            // Clear the input buffer
-            while (getchar() != '\n');
-            printf("\nInvalid input. Please enter a number.\n");
-            continue;
-        }
-        getchar(); // Consume newline
 
         switch (choice) {
             case 1:
@@ -221,8 +210,6 @@ void empl_menu() {
             case 3:
                 printf("\nReturning to Main Menu...\n");
                 return; // Return to the main menu
-            default:
-                printf("\nInvalid choice. Please try again.\n");
         }
     }
 }
@@ -423,9 +410,11 @@ void employee_Page() {
         printf("2. View List of Accommodations\n");
         printf("3. Logout\n");
         printf("Enter your choice: ");
+       scanf("%d", &choice);
+       while (!(choice >= 1 && choice <= 3)) {
+        printf("Invalid choice, please try again (must be between 1 and 3): ");
         scanf("%d", &choice);
-        getchar(); // Consume newline
-
+    }
         switch (choice) {
             case 1:
                 viewCustomerList();
@@ -436,8 +425,6 @@ void employee_Page() {
             case 3:
                 empl_menu(); 
                 return;
-            default:
-                printf("\nInvalid choice. Please try again.\n");
         }
     }
 }
@@ -470,16 +457,17 @@ void viewCustomerList() {
         printf("Enter your choice: ");
         int choice;
         scanf("%d", &choice);
-        getchar(); // Consume newline
-
+        scanf("%d", &choice);
+        while (!(choice >= 1 && choice <= 2)) {
+        printf("Invalid choice, please try again (must be between 1 and 2): ");
+        scanf("%d", &choice);
+    }
         if (choice == 1) {
             // Return to Employee Page
             return;
         } else if (choice == 2) {
             // Refresh the customer list
             continue;
-        } else {
-            printf("\nInvalid choice. Try again.\n");
         }
     }
 }
@@ -509,16 +497,17 @@ void viewAccommodation() {
         printf("Enter your choice: ");
         int choice;
         scanf("%d", &choice);
-        getchar(); // Consume newline
-
+        scanf("%d", &choice);
+        while (!(choice >= 1 && choice <= 2)) {
+        printf("Invalid choice, please try again (must be between 1 and 2): ");
+        scanf("%d", &choice);
+    }
         if (choice == 1) {
             // Return to Employee Page
             return;
         } else if (choice == 2) {
             // Refresh the accommodation list
             continue;
-        } else {
-            printf("\nInvalid choice. Try again.\n");
         }
     }
 }
@@ -1241,26 +1230,4 @@ void bill_information() {
      fclose(file);
  }
 
-  int main() {
-    int choice;
-    MainMenu();
-    scanf("%d", &choice);
-    while (!(choice >= 1 && choice <= 4)) {
-        printf("Invalid choice, please try again (must be between 1 and 4): ");
-        scanf("%d", &choice);
-    }
-    switch (choice) {
-        case 1:
-            adm_menu();
-            break;
-        case 2:
-            empl_menu();
-            break;
-        case 3:
-            cust_menu();
-            break;
-        case 4:
-            printf("Exiting the system. Goodbye!\n");
-    }
-    return 0;
-}
+ 
