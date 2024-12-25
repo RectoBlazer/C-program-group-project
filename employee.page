@@ -26,11 +26,11 @@ void viewAccommodation();
 void logout();
 int validatePassword(const char *password);
 
-int main() {
+void empl_menu()
     int choice;
 
     while (1) {
-        printf("\n=== Main Menu ===\n");
+        printf("\n=== Employee Main Menu ===\n");
         printf("1. Register a New Employee\n");
         printf("2. Login\n");
         printf("3. Back to Main Menu\n");
@@ -48,8 +48,8 @@ int main() {
                 }
                 break;
             case 3:
-                printf("\nExiting the system. Goodbye!\n");
-                return 0;
+                printf("\nReturning to Main Menu...\n");
+                return; // Return to the main menu
             default:
                 printf("\nInvalid choice. Please try again.\n");
         }
@@ -135,7 +135,7 @@ void employeePage() {
                 viewAccommodation();
                 break;
             case 3:
-                #emp_menu;
+                empl_menu();
                 return;
             default:
                 printf("\nInvalid choice. Please try again.\n");
