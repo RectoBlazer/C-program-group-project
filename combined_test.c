@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -108,16 +109,51 @@ int is_valid_date(const char *date);
 void logout();
 int validatePassword(const char *password);
 
+#include <stdio.h>
+
+void empl_menu(); // Forward declaration for the employee menu
+void admin_menu(); // Forward declaration for the admin menu
+void customer_menu(); // Forward declaration for the customer menu
+
 int MainMenu() {
-    printf("\t\t\t***Welcome to the Hotel Management System!***\n");
-    printf("\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-    printf("Please select your role:\n");
-    printf("1. Hotel Administrator\n");
-    printf("2. Employee\n");
-    printf("3. Customer\n");
-    printf("4. Exit\n");
-    printf("Please select a number between 1 and 4: ");
-    return 0;
+    int choice;
+
+    while (1) {
+        printf("\t\t\t***Welcome to the Hotel Management System!***\n");
+        printf("\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+        printf("Please select your role:\n");
+        printf("1. Hotel Administrator\n");
+        printf("2. Employee\n");
+        printf("3. Customer\n");
+        printf("4. Exit\n");
+        printf("Please select a number between 1 and 4: ");
+
+        // Handle input validation
+        if (scanf("%d", &choice) != 1) {
+            // Clear the input buffer if the input is invalid
+            while (getchar() != '\n');
+            printf("\nInvalid input. Please enter a number between 1 and 4.\n");
+            continue; // Re-display the menu
+        }
+
+        // Handle user choices
+        switch (choice) {
+            case 1:
+                 // Call Hotel Administrator menu
+                break;
+            case 2:
+                empl_menu(); // Call Employee menu
+                break;
+            case 3:
+                // Call Customer menu
+                break;
+            case 4:
+                printf("\nExiting program. Goodbye!\n");
+                return 0; // Exit the program
+            default:
+                printf("\nInvalid choice. Please select a number between 1 and 4.\n");
+        }
+    }
 }
 
 int adm_menu() {
@@ -153,7 +189,7 @@ int adm_menu() {
     return 0;
 }
 
-int empl_menu() {
+void empl_menu() {
     int choice;
 
     while (1) {
@@ -162,7 +198,13 @@ int empl_menu() {
         printf("2. Login\n");
         printf("3. Back to Main Menu\n");
         printf("Enter your choice: ");
-        scanf("%d", &choice);
+
+        if (scanf("%d", &choice) != 1) {
+            // Clear the input buffer
+            while (getchar() != '\n');
+            printf("\nInvalid input. Please enter a number.\n");
+            continue;
+        }
         getchar(); // Consume newline
 
         switch (choice) {
@@ -172,16 +214,19 @@ int empl_menu() {
             case 2:
                 if (loginEmployee()) {
                     employee_Page();
+                } else {
+                    printf("\nLogin failed. Please try again.\n");
                 }
                 break;
             case 3:
-                MainMenu();
-                return;
+                printf("\nReturning to Main Menu...\n");
+                return; // Return to the main menu
             default:
                 printf("\nInvalid choice. Please try again.\n");
         }
     }
 }
+
 void register_Hotel_Administrator() {
     if (userCount >= MAX_USERS) {
         printf("\nUser limit reached. Cannot register more administrators.\n");
