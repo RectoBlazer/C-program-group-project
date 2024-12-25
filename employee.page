@@ -135,7 +135,7 @@ void employeePage() {
                 viewAccommodation();
                 break;
             case 3:
-                logout();
+                #emp_menu;
                 return;
             default:
                 printf("\nInvalid choice. Please try again.\n");
@@ -143,18 +143,86 @@ void employeePage() {
     }
 }
 
+
 void viewCustomerList() {
-    printf("\n=== Customer List ===\n");
-    printf("(No customer data available in this example)\n");
+    int found = 0;
+
+    while (1) {
+        printf("\n--- Customer List ---\n");
+
+        // Iterate through the users to find customers
+        for (int i = 0; i < userCount; i++) {
+            if (strcmp(users[i].role, "Customer") == 0) {
+                found = 1;
+                printf("Name: %s\n", users[i].name);
+                printf("Contact: %s\n", users[i].contact);
+                printf("--------------------------\n");
+            }
+        }
+
+        // If no customers found
+        if (!found) {
+            printf("\nNo customers found.\n");
+        }
+
+        // Display options after viewing
+        printf("\nOptions:\n");
+        printf("1. Return to Employee Page\n");
+        printf("2. Refresh Customer List\n");
+        printf("Enter your choice: ");
+        int choice;
+        scanf("%d", &choice);
+        getchar(); // Consume newline
+
+        if (choice == 1) {
+            // Return to Employee Page
+            return;
+        } else if (choice == 2) {
+            // Refresh the customer list
+            continue;
+        } else {
+            printf("\nInvalid choice. Try again.\n");
+        }
+    }
 }
+
 
 void viewAccommodation() {
-    printf("\n=== Accommodation List ===\n");
-    printf("(No accommodation data available in this example)\n");
-}
+    while (1) {
+        if (accommodationCount == 0) {
+            printf("\nNo accommodations available.\n");
+        } else {
+            printf("\n--- List of Accommodations ---\n");
 
-void logout() {
-    printf("\nLogging out from Employee Page.\n");
+            // Iterate through accommodations and display their details
+            for (int i = 0; i < accommodationCount; i++) {
+                printf("Accommodation ID: %d\n", accommodations[i].accommodationID);
+                printf("Accommodation Type: %s\n", accommodations[i].type);
+                printf("Price: %.2f\n", accommodations[i].price);
+                printf("Status: %s\n", accommodations[i].Available ? "Available" : "Booked");
+                printf("--------------------------\n");
+            }
+        }
+
+        // Display options after viewing
+        printf("\nOptions:\n");
+        printf("1. Return to Employee Page\n");
+        printf("2. Refresh Accommodation List\n");
+        printf("Enter your choice: ");
+        int choice;
+        scanf("%d", &choice);
+        getchar(); // Consume newline
+
+        if (choice == 1) {
+            // Return to Employee Page
+            return;
+        } else if (choice == 2) {
+            // Refresh the accommodation list
+            continue;
+        } else {
+            printf("\nInvalid choice. Try again.\n");
+        }
+    }
 }
 
 int validatePassword(const char *password) {
