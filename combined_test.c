@@ -176,10 +176,9 @@ int empl_menu() {
                 break;
             case 3:
                 MainMenu();
-                break;
+                return;
             default:
                 printf("\nInvalid choice. Please try again.\n");
-                break;
         }
     }
 }
