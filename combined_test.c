@@ -1284,22 +1284,21 @@ int doesAccommodationExist(const char *filename, int accommodationID) {
         printf("\nRe-enter Check-Out Date (DD/MM/YYYY): ");
         scanf("%s", new_booking.checkOutDate);
     }
-
     // Calculate total nights and check availability
     int totalNights = 0;
     char current_date[15], next_date[15];
     strcpy(current_date, new_booking.checkInDate);
-
-    while (strcmp(current_date, new_booking.checkOutDate) < 0) {
+    // Loop to calculate total nights and check availability
+    while (compare_dates(current_date, new_booking.checkOutDate) < 0) {
         if (is_date_reserved(new_booking.accommodationID, current_date)) {
             printf("Sorry, the date %s is already reserved.\n", current_date);
             return;
         }
-        totalNights++;
-        get_next_date(current_date, next_date);
-        strcpy(current_date, next_date);
+        totalNights++; // Increment total nights
+        get_next_date(current_date, next_date); // Get the next date
+        strcpy(current_date, next_date); // Update the current date
     }
-    new_booking.totalNights = totalNights;
+    new_booking.totalNights = totalNights; // Store total nights
 
     // Add all dates to the reservations
     strcpy(current_date, new_booking.checkInDate);
