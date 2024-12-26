@@ -4,7 +4,6 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <time.h>
-#include <pthread.h>
 
 // Define common structures and constants
 #define MAX_NAME_LENGTH 50
@@ -70,7 +69,6 @@ User users[MAX_USERS];
 int userCount = 0;
 Accommodation accommodations[100];
 int accommodationCount = 0;
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 User employees[MAX_USERS];
 int employeeCount = 0;
 
@@ -355,7 +353,6 @@ void login_Hotel_Administrator() {
 }
 
 void record_accommodation() {
-    pthread_mutex_lock(&mutex); //this new yaa(lock the mutex)
     printf("\t\t\t*** Record Accommodation Info ***\n");
     printf("\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 
@@ -375,13 +372,10 @@ void record_accommodation() {
 
     new_accommodation.Available = 1; // the new accommodation exists by default
 
-    //This new YA "Save to array"
-    accommodations[accommodationCount++] = new_accommodation;
     // open the binary file to store info
     FILE *file = fopen("accommodations.dat", "ab");
     if (file == NULL) {
         printf("Error opening file to save accommodation data!\n");
-        pthread_mutex_unlock(&mutex); // Unlock the mutex
         return;
     }
 
@@ -390,7 +384,6 @@ void record_accommodation() {
     fclose(file);
 
     printf("Accommodation data saved successfully!\n");
-    pthread_mutex_unlock(&mutex); // Unlock the mutex
 }
 
 void view_customer_info() {
@@ -547,15 +540,14 @@ void viewCustomerList() {
     }
 }
 
-
 void viewAccommodation() {
     while (1) {
-        pthread_mutex_lock(&mutex); // Lock the mutex
         if (accommodationCount == 0) {
             printf("\nNo accommodations available.\n");
         } else {
             printf("\n--- List of Accommodations ---\n");
 
+            // Iterate through accommodations and display their details
             for (int i = 0; i < accommodationCount; i++) {
                 printf("Accommodation ID: %d\n", accommodations[i].accommodationID);
                 printf("Accommodation Type: %s\n", accommodations[i].type);
@@ -564,9 +556,8 @@ void viewAccommodation() {
                 printf("--------------------------\n");
             }
         }
-        pthread_mutex_unlock(&mutex); // Unlock the mutex
 
-        // Display options
+        // Display options after viewing
         printf("\nOptions:\n");
         printf("1. Return to Employee Page\n");
         printf("2. Refresh Accommodation List\n");
@@ -576,15 +567,16 @@ void viewAccommodation() {
         getchar(); // Consume newline
 
         if (choice == 1) {
+            // Return to Employee Page
             return;
         } else if (choice == 2) {
+            // Refresh the accommodation list
             continue;
         } else {
             printf("\nInvalid choice. Try again.\n");
         }
     }
 }
-
 
 int validatePassword(const char *password) {
     int hasUpper = 0, hasDigit = 0, length = strlen(password);
