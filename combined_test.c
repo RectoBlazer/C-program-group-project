@@ -63,6 +63,7 @@ typedef struct {
      char customerName[50];
      char checkInDate[15];
      char checkOutDate[15];
+     int totalNights;
  };
 
 User users[MAX_USERS];
@@ -96,7 +97,7 @@ void add_reservation(int accommodationID, const char *date);
 void get_next_date(const char *current_date, char *next_date);
 int is_booking_id_exist(int bookingID);
 int generate_unique_booking_id();
-int booking();
+void booking();
 void view_reservations();
 int alphabetical(char ch[15]);
 int check_birthday(char birthday[12]);
@@ -113,7 +114,6 @@ void logout();
 int validatePassword(const char *password);
 int ValidateEmail(const char *email);
 int doesAccommodationExist(const char *filename, int accommodationID);
-double calculate_total_price(const char *accommodationFile, int accommodationID, const char *checkInDate, const char *checkOutDate)
 #include <stdio.h>
 
 void empl_menu(); // Forward declaration for the employee menu
@@ -973,12 +973,24 @@ void bill_information() {
              printf("Accommodation ID: %d\n", booking.accommodationID);
              printf("Check-In Date: %s\n", booking.checkInDate);
              printf("Check-Out Date: %s\n", booking.checkOutDate);
-             // Calculate the total price
-            double total_price = calculate_total_price("accommodations.dat", booking.accommodationID, booking.checkInDate, booking.checkOutDate);
-            if (total_price >= 0) {
-                printf("Total Amount: $%.2f\n", total_price);
-            } else {
-                printf("Error calculating the total amount.\n");
+             printf("Total Nights: %d\n", booking.totalNights);
+
+            // Retrieve accommodation details
+            Accommodation accommodation;
+            if (!doesAccommodationExist("accommodations.dat", booking.accommodationID)) {
+                printf("Accommodation details not found.\n");
+                fclose(file);
+                return;
+            }
+
+            FILE *acc_file = fopen("accommodations.dat", "rb");
+            while (fread(&accommodation, sizeof(Accommodation), 1, acc_file) == 1) {
+                if (accommodation.accommodationID == booking.accommodationID) {
+                    double total_price = booking.totalNights * accommodation.price;
+                    printf("Total Amount: $%.2f\n", total_price);
+                    fclose(acc_file);
+                    break;
+                }
             }
              found = 1;
              break;
@@ -993,47 +1005,9 @@ void bill_information() {
 
  }
 
-double calculate_total_price(const char *accommodationFile, int accommodationID, const char *checkInDate, const char *checkOutDate) {
-    FILE *file = fopen(accommodationFile, "rb");
-    if (file == NULL) {
-        printf("Error opening file to retrieve accommodation data!\n");
-        return -1; // Return -1 to indicate an error
-    }
 
-    Accommodation accommodation;
-    int found = 0;
 
-    // Search for the accommodation by ID
-    while (fread(&accommodation, sizeof(Accommodation), 1, file) == 1) {
-        if (accommodation.accommodationID == accommodationID) {
-            found = 1;
-            break;
-        }
-    }
 
-    fclose(file);
-
-    if (!found) {
-        printf("Accommodation ID not found.\n");
-        return -1;
-    }
-
-    // Calculate the total number of nights
-    int totalNights = 0;
-    char current_date[15], next_date[15];
-    strcpy(current_date, checkInDate);
-
-    while (strcmp(current_date, checkOutDate) < 0) {
-        totalNights++;
-        get_next_date(current_date, next_date);
-        strcpy(current_date, next_date);
-    }
-
-    // Calculate total price
-    double totalPrice = totalNights * accommodation.price;
-
-    return totalPrice;
-}
 
  int is_customer_registered(const char *customer_name) {
      Customer existing_customer;
@@ -1242,116 +1216,114 @@ int doesAccommodationExist(const char *filename, int accommodationID) {
     return 0; // ID does not exist
 }
  // Booking function 
- int booking() {
-     char customer_name[50];
-     printf("\nEnter Booking Details:\n");
-     printf("Customer Name (First Last): ");
-     scanf(" %[^\n]s", customer_name);
- 
-     // Check if the customer is registered
-     if (!is_customer_registered(customer_name)) {
-         int choice;
-         printf("Customer is not registered. Please register before booking.\n");
-         printf("1. customer menu \n");
-         printf("2. main menu\n"); 
-         printf("3. exit");
-         printf("\n enter your choice: ");
-         scanf("%d", &choice);
-         while(!(choice >= 1 && choice <= 4)){
-             printf("Invalid choice, please try again (must be between 1 and 4): ");
-             scanf("%d", &choice);
-         }
-         switch (choice) {
-             case 1:
-                 cust_menu();
-                 break;
-             case 2:
-                 MainMenu();
-                 break;
-             case 3:
-                 printf("\nThank you, bye!\n");
-                 break;
-         }
-     }
- 
-     // Proceed with booking if the customer is registered
-     struct Booking new_booking;
- 
-     new_booking.bookingID = generate_unique_booking_id();
-     strcpy(new_booking.customerName, customer_name);
+ void booking() {
+    char customer_name[50];
+    printf("\nEnter Booking Details:\n");
+    printf("Customer Name (First Last): ");
+    scanf(" %[^\n]s", customer_name);
 
-     do {
-    printf("\nEnter Accommodation ID: ");
-    scanf("%d", &new_booking.accommodationID);
-
-    // Pass the correct file name to the function
-    if (!doesAccommodationExist("accommodations.dat", new_booking.accommodationID)) {
-        printf("Accommodation ID does not exist. Please re-enter.\n");
+    // Check if the customer is registered
+    if (!is_customer_registered(customer_name)) {
+        int choice;
+        printf("Customer is not registered. Please register before booking.\n");
+        printf("1. Customer menu\n");
+        printf("2. Main menu\n");
+        printf("3. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        while (!(choice >= 1 && choice <= 3)) {
+            printf("Invalid choice, please try again (must be between 1 and 3): ");
+            scanf("%d", &choice);
+        }
+        switch (choice) {
+            case 1:
+                cust_menu();
+                return;
+            case 2:
+                MainMenu();
+                return;
+            case 3:
+                printf("\nThank you, bye!\n");
+                return;
+        }
     }
+
+    // Proceed with booking if the customer is registered
+    struct Booking new_booking;
+    new_booking.bookingID = generate_unique_booking_id();
+    strcpy(new_booking.customerName, customer_name);
+
+    do {
+        printf("\nEnter Accommodation ID: ");
+        scanf("%d", &new_booking.accommodationID);
+
+        if (!doesAccommodationExist("accommodations.dat", new_booking.accommodationID)) {
+            printf("Accommodation ID does not exist. Please re-enter.\n");
+        }
     } while (!doesAccommodationExist("accommodations.dat", new_booking.accommodationID));
- 
-     // Input and validate check-in date
-     printf("\nEnter Check-In Date (DD/MM/YYYY): ");
-     scanf("%s", new_booking.checkInDate);
-     while (!is_valid_date(new_booking.checkInDate)) {
-         printf("Invalid date format! Please enter a valid Check-In Date (DD/MM/YYYY): ");
-         scanf("%s", new_booking.checkInDate);
-     }
+
+    // Input and validate check-in date
+    printf("\nEnter Check-In Date (DD/MM/YYYY): ");
+    scanf("%s", new_booking.checkInDate);
+    while (!is_valid_date(new_booking.checkInDate)) {
+        printf("Invalid date format! Please enter a valid Check-In Date (DD/MM/YYYY): ");
+        scanf("%s", new_booking.checkInDate);
+    }
 
     // Input and validate check-out date
-     printf("\nEnter Check-Out Date (DD/MM/YYYY): ");
-     scanf("%s", new_booking.checkOutDate);
-     while (!is_valid_date(new_booking.checkOutDate)) {
-         printf("Invalid date format! Please enter a valid Check-Out Date (DD/MM/YYYY): ");
-         scanf("%s", new_booking.checkOutDate);
-     }
- 
-     // Ensure check-in date is before check-out date
-     while (compare_dates(new_booking.checkInDate, new_booking.checkOutDate) >= 0) {
-         printf("Check-Out Date must be later than Check-In Date!\n");
-         printf("\nRe-enter Check-Out Date (DD/MM/YYYY): ");
-         scanf("%s", new_booking.checkOutDate);
- 
-         while (!is_valid_date(new_booking.checkOutDate)) {
-             printf("Invalid date format! Please enter a valid Check-Out Date (DD/MM/YYYY): ");
-             scanf("%s", new_booking.checkOutDate);
-         }
-     }
-     // Check if the dates are available
-     char current_date[15], next_date[15];
-     strcpy(current_date, new_booking.checkInDate);
- 
-     while (strcmp(current_date, new_booking.checkOutDate) <= 0) {
-         if (is_date_reserved(new_booking.accommodationID, current_date)) {
-             printf("Sorry, the date %s is already reserved.\n", current_date);
-             return 0;  
-         }
-         get_next_date(current_date, next_date);
-         strcpy(current_date, next_date);
-     }
- 
-     // Add all dates to the reservations
-     strcpy(current_date, new_booking.checkInDate);
-     while (strcmp(current_date, new_booking.checkOutDate) <= 0) {
-         add_reservation(new_booking.accommodationID, current_date);
-         get_next_date(current_date, next_date);
-         strcpy(current_date, next_date);
-     }
- 
-     // Save the booking
-     FILE *file = fopen("bookings.dat", "ab");
-     if (!file) {
-         printf("Error opening file to save booking data!\n");
-         return 0;
-     }
- 
-     fwrite(&new_booking, sizeof(struct Booking), 1, file);
-     fclose(file);
- 
-     printf("Booking saved successfully! Your Booking ID is: %d\n", new_booking.bookingID);
-     return 1;
-     login_customer();
- }
+    printf("\nEnter Check-Out Date (DD/MM/YYYY): ");
+    scanf("%s", new_booking.checkOutDate);
+    while (!is_valid_date(new_booking.checkOutDate)) {
+        printf("Invalid date format! Please enter a valid Check-Out Date (DD/MM/YYYY): ");
+        scanf("%s", new_booking.checkOutDate);
+    }
+
+    // Ensure check-in date is before check-out date
+    while (compare_dates(new_booking.checkInDate, new_booking.checkOutDate) >= 0) {
+        printf("Check-Out Date must be later than Check-In Date!\n");
+        printf("\nRe-enter Check-Out Date (DD/MM/YYYY): ");
+        scanf("%s", new_booking.checkOutDate);
+    }
+
+    // Calculate total nights and check availability
+    int totalNights = 0;
+    char current_date[15], next_date[15];
+    strcpy(current_date, new_booking.checkInDate);
+
+    while (strcmp(current_date, new_booking.checkOutDate) < 0) {
+        if (is_date_reserved(new_booking.accommodationID, current_date)) {
+            printf("Sorry, the date %s is already reserved.\n", current_date);
+            return;
+        }
+        totalNights++;
+        get_next_date(current_date, next_date);
+        strcpy(current_date, next_date);
+    }
+    new_booking.totalNights = totalNights;
+
+    // Add all dates to the reservations
+    strcpy(current_date, new_booking.checkInDate);
+    while (strcmp(current_date, new_booking.checkOutDate) < 0) {
+        add_reservation(new_booking.accommodationID, current_date);
+        get_next_date(current_date, next_date);
+        strcpy(current_date, next_date);
+    }
+
+    // Save the booking
+    FILE *file = fopen("bookings.dat", "ab");
+    if (!file) {
+        printf("Error opening file to save booking data!\n");
+        return;
+    }
+
+    fwrite(&new_booking, sizeof(struct Booking), 1, file);
+    fclose(file);
+
+    printf("Booking saved successfully! Your Booking ID is: %d\n", new_booking.bookingID);
+    printf("Total Nights: %d\n", new_booking.totalNights);
+
+    cust_menu();
+}
  
  // Function to view all reservations
  void view_reservations() {
