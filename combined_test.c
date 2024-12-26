@@ -945,7 +945,7 @@ void view_list_information_accommodation() {
         printf("Status: %s\n", accommodations[i].Available ? "Available" : "Booked");
         printf("--------------------------\n");
     }
-    login_customer();
+
 }
 
 void bill_information() {
@@ -990,7 +990,7 @@ void bill_information() {
      if (!found) {
          printf("You have not booked any accommodation.\n");
      }
-    login_customer();
+
  }
 
 double calculate_total_price(const char *accommodationFile, int accommodationID, const char *checkInDate, const char *checkOutDate) {
@@ -1375,7 +1375,6 @@ int doesAccommodationExist(const char *filename, int accommodationID) {
      }
  
      fclose(file);
-     login_customer();
  }
 
   int main() {
