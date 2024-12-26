@@ -110,7 +110,7 @@ int compare_dates(const char *date1, const char *date2);
 int is_valid_date(const char *date);
 void logout();
 int validatePassword(const char *password);
-
+int doesAccommodationExist(const char *filename, int accommodationID);
 #include <stdio.h>
 
 void empl_menu(); // Forward declaration for the employee menu
@@ -1112,7 +1112,25 @@ void bill_information() {
  
      return new_id;
  }
- 
+  // Function to check if an accommodation ID exists in the binary file
+int doesAccommodationExist(const char *filename, int accommodationID) {
+    FILE *file = fopen(filename, "rb");
+    if (file == NULL) {
+        printf("Error opening file to check accommodation data!\n");
+        return 0;
+    }
+
+    Accommodation temp;
+    while (fread(&temp, sizeof(Accommodation), 1, file)) {
+        if (temp.accommodationID == accommodationID) {
+            fclose(file);
+            return 1; // ID exists
+        }
+    }
+
+    fclose(file);
+    return 0; // ID does not exist
+}
  // Booking function 
  int booking() {
      char customer_name[50];
@@ -1152,8 +1170,15 @@ void bill_information() {
      new_booking.bookingID = generate_unique_booking_id();
      strcpy(new_booking.customerName, customer_name);
 
-     printf("\nEnter Accommodation ID: ");
-     scanf("%d", &new_booking.accommodationID);
+     do {
+    printf("\nEnter Accommodation ID: ");
+    scanf("%d", &new_booking.accommodationID);
+
+    // Pass the correct file name to the function
+    if (!doesAccommodationExist("accommodations.dat", new_booking.accommodationID)) {
+        printf("Accommodation ID does not exist. Please re-enter.\n");
+    }
+    } while (!doesAccommodationExist("accommodations.dat", new_booking.accommodationID));
  
      // Input and validate check-in date
      printf("\nEnter Check-In Date (DD/MM/YYYY): ");
