@@ -1216,7 +1216,8 @@ int doesAccommodationExist(const char *filename, int accommodationID) {
     return 0; // ID does not exist
 }
  // Booking function 
- void booking() {
+ // Booking function 
+void booking() {
     char customer_name[50];
     printf("\nEnter Booking Details:\n");
     printf("Customer Name (First Last): ");
@@ -1302,7 +1303,7 @@ int doesAccommodationExist(const char *filename, int accommodationID) {
 
     // Add all dates to the reservations
     strcpy(current_date, new_booking.checkInDate);
-    while (strcmp(current_date, new_booking.checkOutDate) < 0) {
+    while (compare_dates(current_date, new_booking.checkOutDate) < 0) {
         add_reservation(new_booking.accommodationID, current_date);
         get_next_date(current_date, next_date);
         strcpy(current_date, next_date);
@@ -1323,6 +1324,7 @@ int doesAccommodationExist(const char *filename, int accommodationID) {
 
     cust_menu();
 }
+
  
  // Function to view all reservations
  void view_reservations() {
