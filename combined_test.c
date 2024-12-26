@@ -113,6 +113,7 @@ void logout();
 int validatePassword(const char *password);
 int ValidateEmail(const char *email);
 int doesAccommodationExist(const char *filename, int accommodationID);
+double calculate_total_price(const char *accommodationFile, int accommodationID, const char *checkInDate, const char *checkOutDate)
 #include <stdio.h>
 
 void empl_menu(); // Forward declaration for the employee menu
@@ -944,6 +945,7 @@ void view_list_information_accommodation() {
         printf("Status: %s\n", accommodations[i].Available ? "Available" : "Booked");
         printf("--------------------------\n");
     }
+    login_customer();
 }
 
 void bill_information() {
@@ -971,7 +973,13 @@ void bill_information() {
              printf("Accommodation ID: %d\n", booking.accommodationID);
              printf("Check-In Date: %s\n", booking.checkInDate);
              printf("Check-Out Date: %s\n", booking.checkOutDate);
-             //printf("Total Amount: $%.2f\n", booking.totalAmount); // the total amount should be calculated per night
+             // Calculate the total price
+            double total_price = calculate_total_price("accommodations.dat", booking.accommodationID, booking.checkInDate, booking.checkOutDate);
+            if (total_price >= 0) {
+                printf("Total Amount: $%.2f\n", total_price);
+            } else {
+                printf("Error calculating the total amount.\n");
+            }
              found = 1;
              break;
          }
@@ -982,7 +990,50 @@ void bill_information() {
      if (!found) {
          printf("You have not booked any accommodation.\n");
      }
+    login_customer();
  }
+
+double calculate_total_price(const char *accommodationFile, int accommodationID, const char *checkInDate, const char *checkOutDate) {
+    FILE *file = fopen(accommodationFile, "rb");
+    if (file == NULL) {
+        printf("Error opening file to retrieve accommodation data!\n");
+        return -1; // Return -1 to indicate an error
+    }
+
+    Accommodation accommodation;
+    int found = 0;
+
+    // Search for the accommodation by ID
+    while (fread(&accommodation, sizeof(Accommodation), 1, file) == 1) {
+        if (accommodation.accommodationID == accommodationID) {
+            found = 1;
+            break;
+        }
+    }
+
+    fclose(file);
+
+    if (!found) {
+        printf("Accommodation ID not found.\n");
+        return -1;
+    }
+
+    // Calculate the total number of nights
+    int totalNights = 0;
+    char current_date[15], next_date[15];
+    strcpy(current_date, checkInDate);
+
+    while (strcmp(current_date, checkOutDate) < 0) {
+        totalNights++;
+        get_next_date(current_date, next_date);
+        strcpy(current_date, next_date);
+    }
+
+    // Calculate total price
+    double totalPrice = totalNights * accommodation.price;
+
+    return totalPrice;
+}
 
  int is_customer_registered(const char *customer_name) {
      Customer existing_customer;
@@ -1299,6 +1350,7 @@ int doesAccommodationExist(const char *filename, int accommodationID) {
  
      printf("Booking saved successfully! Your Booking ID is: %d\n", new_booking.bookingID);
      return 1;
+     login_customer();
  }
  
  // Function to view all reservations
@@ -1323,6 +1375,7 @@ int doesAccommodationExist(const char *filename, int accommodationID) {
      }
  
      fclose(file);
+     login_customer();
  }
 
   int main() {
