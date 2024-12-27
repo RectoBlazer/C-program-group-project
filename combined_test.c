@@ -923,22 +923,26 @@ int login_customer() {
 }
 
 void view_list_information_accommodation() {
-    if (accommodationCount == 0) {
+    FILE *file = fopen("accommodations.dat", "rb");
+    if (file == NULL) {
         printf("\nSorry. No accommodations available.\n");
         return;
     }
 
     printf("\n--- List of Accommodations ---\n");
-    for (int i = 0; i < accommodationCount; i++) {
-        printf("Accommodation ID: %d\n", accommodations[i].accommodationID);
-        printf("Type: %s\n", accommodations[i].type);
-        printf("Description: %s\n", accommodations[i].description);
-        printf("Price per Night: %.2f\n", accommodations[i].price);
-        printf("Status: %s\n", accommodations[i].Available ? "Available" : "Booked");
+    Accommodation temp;
+    while (fread(&temp, sizeof(Accommodation), 1, file)) {
+        printf("Accommodation ID: %d\n", temp.accommodationID);
+        printf("Type: %s\n", temp.type);
+        printf("Description: %s\n", temp.description);
+        printf("Price per Night: %.2f\n", temp.price);
+        printf("Status: %s\n", temp.Available ? "Available" : "Booked");
         printf("--------------------------\n");
     }
 
+    fclose(file);
 }
+
 
 void bill_information() {
     printf("\t\t\t*** Bill Information ***\n");
