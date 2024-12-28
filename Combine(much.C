@@ -1217,7 +1217,7 @@ int login_customer() {
     }
     switch (choice) {
         case 1:
-            view_list_information_accommodation();
+            viewAccommodation();
             break;
         case 2:
             view_reservations();
