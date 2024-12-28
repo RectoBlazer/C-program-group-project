@@ -20,6 +20,7 @@
 #define MAX_PASSWORD_LENGTH 50
 #define MAX_ACCESS_CODE_LENGTH 15
 #define MAX_DEPARTMENT_LENGTH 30
+#define MAX_ACCOMMODATIONS 100
 
 
 typedef struct {
@@ -79,12 +80,13 @@ typedef struct {
 
 User users[MAX_USERS];
 int userCount = 0;
-Accommodation accommodations[100];
+Accommodation accommodations[MAX_ACCOMMODATIONS];
 int accommodationCount = 0;
 Employee employees[MAX_USERS];
 int employeeCount = 0;
 Customer customers[MAX_USERS];
 int customerCount = 0;
+
 
 // Function prototypes
 void record_accommodation();
@@ -117,7 +119,6 @@ int check_email(char email[40]);
 int exist_email(const char *email);
 int check_passport(char passport_num[10]);
 int exist_passport(char passport[10]);
-void cust_choice_menu();
 int numeric(char ch[15]);
 int check_password(char password[25]);
 int correct_password(const char *email, const char *password);
@@ -129,6 +130,7 @@ int validatePhoneNumber_Employee(const char *phoneNumber);
 int validateEmail_Employee(const char *email);
 void generateAccessCode(char *accessCode, const char *department, int id);
 int doesAccommodationExist(const char *fileName, int id); // Placeholder.
+void debug_print_accommodations();
 #include <stdio.h>
 
 int ValidateEmail(const char *email); // Function prototype
@@ -252,46 +254,63 @@ void admin_dashboard() {
 }
 
 void empl_menu() {
-    int choice;
+    int choice; // Variable to store the user's menu choice.
 
-    while (1) {
+    while (1) { // Infinite loop to keep the menu running until the user exits.
+        // Display a user-friendly menu layout
         printf("\n===============================================\n");
         printf("             === Employee Management ===        \n");
         printf("===============================================\n");
-        printf("1. Register Employee\n");
-        printf("2. Employee Login\n");
-        printf("3. Exit\n");
+        printf("1. Register Employee\n"); // Option to register a new employee.
+        printf("2. Employee Login\n");    // Option to log in as an employee.
+        printf("3. Exit\n");             // Option to exit to the main menu.
         printf("Enter your choice: ");
 
+        // Read the user's input and validate it.
         if (scanf("%d", &choice) != 1) {
+            // If the input is not a number, clear the input buffer.
             while (getchar() != '\n');
             printf("\nInvalid input. Please enter a number.\n");
-            continue;
+            continue; // Restart the loop to prompt the user again.
         }
-        getchar();
+        getchar(); // Clear any extra newline character left in the input buffer.
 
+        // Process the user's menu choice using a switch-case structure.
         switch (choice) {
             case 1:
+                // Register a new employee by calling the corresponding function.
                 registerEmployee();
                 break;
             case 2:
+                // Attempt to log in and navigate to the employee page upon success.
                 if (loginEmployee()) {
-                    employee_Page();
+                    employee_Page(); // Open the employee-specific interface.
                 } else {
+                    // Inform the user if login fails.
                     printf("\nLogin failed. Please try again.\n");
                 }
                 break;
             case 3:
+                // Exit the menu and return control to the main program.
                 printf("\nReturning to Main Menu...\n");
-                return;
+                return; // Exit the loop and end the function.
             default:
+                // Handle invalid menu choices gracefully.
                 printf("\nInvalid choice. Please try again.\n");
         }
     }
 }
 
-// Duplicate function definition removed
-
+// Helper function to check if a string contains only letters
+int is_alpha_string(const char *str) {
+    while (*str) {
+        if (!isalpha(*str)) {
+            return 0; // Non-letter character found
+        }
+        str++;
+    }
+    return 1; // All characters are letters
+}
 
 void register_Hotel_Administrator() {
     if (userCount >= MAX_USERS) {
@@ -304,40 +323,57 @@ void register_Hotel_Administrator() {
 
     printf("\n=== Register Hotel Administrator ===\n");
 
-    while (getchar() != '\n');
+    while (getchar() != '\n'); // Clear the input buffer
 
-    printf("Enter your name: ");
-    fgets(newUser.name, sizeof(newUser.name), stdin);
-    newUser.name[strcspn(newUser.name, "\n")] = '\0';  //for removeing newline character
+    // Name validation
+    do {
+        printf("Enter your name: ");
+        fgets(newUser.name, sizeof(newUser.name), stdin);
+        newUser.name[strcspn(newUser.name, "\n")] = '\0'; // Remove newline character
 
-    do{
-        printf("Enter your email adress: ");
+        if (!is_alpha_string(newUser.name)) {
+            printf("Invalid name. Please enter a name with letters only.\n");
+        }
+    } while (!is_alpha_string(newUser.name));
+
+    // Email validation
+    do {
+        printf("Enter your email address: ");
         fgets(newUser.contact, sizeof(newUser.contact), stdin);
         newUser.contact[strcspn(newUser.contact, "\n")] = '\0';
 
         if (!ValidateEmail(newUser.contact)) {
             printf("\nInvalid email. Please enter a valid email address.\n");
         }
-
     } while (!ValidateEmail(newUser.contact));
 
     printf("Enter a username: ");
     fgets(newUser.username, sizeof(newUser.username), stdin);
     newUser.username[strcspn(newUser.username, "\n")] = '\0';
 
-    do{
-        printf("Enter a password: (at least 8 characters, including uppercase letters and digits): ");
+    // Password validation
+    do {
+        printf("Enter a password (at least 8 characters, including uppercase letters and digits): ");
         fgets(newUser.password, sizeof(newUser.password), stdin);
         newUser.password[strcspn(newUser.password, "\n")] = '\0';
 
         if (!validatePassword(newUser.password)) {
             printf("\nInvalid password. Please follow the password requirements.\n");
         }
-
     } while (!validatePassword(newUser.password));
 
     strcpy(newUser.role, "Hotel Administrator");
     users[userCount++] = newUser;
+
+    // Save the new user to HotelAdmin.dat
+    FILE *file = fopen("HotelAdmin.dat", "ab");
+    if (file == NULL) {
+        printf("Error opening file to save hotel administrator data!\n");
+        MainMenu();
+        return;
+    }
+    fwrite(&newUser, sizeof(User), 1, file);
+    fclose(file);
 
     printf("\nHotel Administrator registered successfully!\n");
 
@@ -386,20 +422,33 @@ void login_Hotel_Administrator() {
     fgets(password, sizeof(password), stdin);
     password[strcspn(password, "\n")] = '\0';
 
-    for (int i = 0; i < userCount; i++) {
-        if (strcmp(users[i].username, username)==0 && strcmp(users[i].password,password)==0) {
-            if (strcmp(users[i].role, "Hotel Administrator") == 0) {
-                printf("\nLogin successful. Welcome, %s!\n",users[i].name);
+    // Open the HotelAdmin.dat file for reading
+    FILE *file = fopen("HotelAdmin.dat", "rb");
+    if (file == NULL) {
+        printf("Error opening file for reading.\n");
+        MainMenu();
+        return;
+    }
+    User storedUser;
+    int loginSuccessful = 0;
+    // Read user data from the file and validate credentials
+    while (fread(&storedUser, sizeof(User), 1, file) == 1) {
+        if (strcmp(storedUser.username, username) == 0 && strcmp(storedUser.password, password) == 0) {
+            if (strcmp(storedUser.role, "Hotel Administrator") == 0) {
+                printf("\nLogin successful. Welcome, %s!\n", storedUser.name);
                 admin_dashboard();
-                return;
+                loginSuccessful = 1;
+                break;
             } else {
                 printf("\nAccess denied. Only Hotel Administrators are allowed to log in.\n");
-                MainMenu();
+                break;
             }
         }
     }
-
-    printf("\nInvalid username or password. Please try again.\n");
+    fclose(file);
+    if (!loginSuccessful) {
+        printf("\nInvalid username or password. Please try again.\n");
+    }
     MainMenu();
 }
 void record_accommodation() {
@@ -408,32 +457,38 @@ void record_accommodation() {
 
     Accommodation new_accommodation;
 
-    // Input accommodation details
+    // Input accommodation details with validation
     printf("Enter Accommodation ID: ");
-    scanf("%d", &new_accommodation.accommodationID);
+    while (scanf("%d", &new_accommodation.accommodationID) != 1 || new_accommodation.accommodationID <= 0) {
+        printf("Invalid input. Please enter a positive integer for ID: ");
+        while (getchar() != '\n'); // Clear invalid input
+    }
 
-    printf("Enter Accommodation Type: ");
-    scanf("%s", new_accommodation.type);
+    printf("Enter Accommodation Type (max 49 characters): ");
+    scanf("%49s", new_accommodation.type);
 
-    printf("Enter Description: ");
-    scanf(" %[^\n]s", new_accommodation.description);
+    printf("Enter Description (max 99 characters): ");
+    scanf(" %99[^\n]", new_accommodation.description);
 
     printf("Enter Price per Night: ");
-    scanf("%lf", &new_accommodation.price);
+    while (scanf("%f", &new_accommodation.price) != 1 || new_accommodation.price <= 0.0) {
+        printf("Invalid input. Please enter a positive price: ");
+        while (getchar() != '\n'); // Clear invalid input
+    }
 
     new_accommodation.Available = 1; // The new accommodation is available by default
 
     // Open the binary file to store info
     FILE *file = fopen("accommodations.dat", "ab");
     if (file == NULL) {
-        printf("Error opening file to save accommodation data!\n");
+        perror("Error opening file to save accommodation data");
         return;
     }
 
     // Write the new accommodation to the file
     size_t written = fwrite(&new_accommodation, sizeof(Accommodation), 1, file);
     if (written != 1) {
-        printf("Error writing accommodation data to file!\n");
+        perror("Error writing accommodation data to file");
     } else {
         printf("Accommodation recorded successfully!\n");
     }
@@ -441,6 +496,7 @@ void record_accommodation() {
     // Close the file
     fclose(file);
 }
+
 void view_customer_info() {
     printf("\t\t\t*** View Customer Info ***\n");
     printf("\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
@@ -806,12 +862,10 @@ void viewCustomerList() {
         }
     }
 }
-
-// Function to read accommodations from the binary file
 void load_accommodations() {
     FILE *file = fopen("accommodations.dat", "rb");
     if (file == NULL) {
-        printf("Error opening file to read accommodation data!\n");
+        perror("Error opening file to read accommodation data");
         accommodationCount = 0; // Reset count if file cannot be opened
         return;
     }
@@ -819,14 +873,22 @@ void load_accommodations() {
     accommodationCount = 0; // Reset count before loading
     while (fread(&accommodations[accommodationCount], sizeof(Accommodation), 1, file) == 1) {
         accommodationCount++;
+        if (accommodationCount >= MAX_ACCOMMODATIONS) {
+            printf("Warning: Maximum number of accommodations reached. Some records may not be loaded.\n");
+            break;
+        }
+    }
+
+    if (ferror(file)) {
+        perror("Error reading accommodation data from file");
     }
 
     fclose(file);
-}
 
-// Function to view accommodations
+    // Debug log
+    printf("[DEBUG] Loaded %d accommodations from file.\n", accommodationCount);
+}
 void viewAccommodation() {
-    // Load accommodations from file
     load_accommodations();
 
     while (1) {
@@ -834,14 +896,10 @@ void viewAccommodation() {
         printf("     Accommodation List    \n");
         printf("=============================\n\n");
 
-        // Check if there are accommodations available
         if (accommodationCount == 0) {
-            printf("\nNo accommodations available at the moment.\n\n");
-            printf("=============================\n");
+            printf("\nNo accommodations available at the moment.\n");
         } else {
             printf("\n--- List of Available Accommodations ---\n\n");
-
-            // Iterate through accommodations and display their details
             for (int i = 0; i < accommodationCount; i++) {
                 printf("[Accommodation %d]\n", i + 1);
                 printf("----------------------------------\n");
@@ -852,41 +910,44 @@ void viewAccommodation() {
                 printf("Status     : %s\n", accommodations[i].Available ? "Available" : "Booked");
                 printf("----------------------------------\n\n");
             }
-            printf("========================================\n");
         }
 
-        // Display options after viewing
         printf("\nOptions:\n");
         printf("1. Return to Employee Page\n");
         printf("2. Refresh Accommodation List\n");
         printf("\nEnter your choice: ");
 
         int choice;
-
-        // Input validation for choice
         while (1) {
             if (scanf("%d", &choice) != 1) {
-                printf("Invalid input. Please enter a number: ");
+                printf("Invalid input. Please enter 1 or 2: ");
                 while (getchar() != '\n'); // Clear invalid input
             } else if (choice < 1 || choice > 2) {
                 printf("Invalid choice. Please select a valid option (1 or 2): ");
             } else {
-                break; // Valid input
+                break;
             }
         }
         getchar(); // Consume newline
 
-        printf("\n[LOG] User selected option %d\n", choice);
-
-        // Handle user choice
         if (choice == 1) {
-            printf("\n[LOG] Returning to Employee Page\n");
-            return;
+            return; // Exit the function
         } else if (choice == 2) {
-            printf("\n[LOG] Refreshing accommodation list...\n\n");
-            load_accommodations(); // Reload accommodations from file
-            continue;
+            printf("\n[LOG] Refreshing accommodation list...\n");
+            load_accommodations();
         }
+    }
+}
+void debug_print_accommodations() {
+    printf("\n[DEBUG] Current Accommodations:\n");
+    for (int i = 0; i < accommodationCount; i++) {
+        printf("[Accommodation %d]\n", i + 1);
+        printf("ID         : %d\n", accommodations[i].accommodationID);
+        printf("Type       : %s\n", accommodations[i].type);
+        printf("Description: %s\n", accommodations[i].description);
+        printf("Price      : $%.2f\n", accommodations[i].price);
+        printf("Status     : %s\n", accommodations[i].Available ? "Available" : "Booked");
+        printf("----------------------------------\n");
     }
 }
 
@@ -1204,10 +1265,6 @@ int login_customer() {
         scanf("%s", password);
     }
     printf("~~~~~~~~~~~~~~ Login successful! ~~~~~~~~~~~~~~\n");
-    cust_choice_menu();
-    return 0;
-}
-void cust_choice_menu(){
     int choice;
     printf("1. View list and information of Accommodation\n");
     printf("2. View all reservations\n");
@@ -1236,6 +1293,7 @@ void cust_choice_menu(){
         case 5:
             MainMenu();
     }
+    return 0;
 }
 
 
@@ -1294,7 +1352,7 @@ void bill_information() {
      if (!found) {
          printf("You have not booked any accommodation.\n");
      }
-    cust_choice_menu();
+
  }
 
 
@@ -1614,7 +1672,7 @@ void booking() {
     printf("Booking saved successfully! Your Booking ID is: %d\n", new_booking.bookingID);
     printf("Total Nights: %d\n", new_booking.totalNights);
 
-   cust_choice_menu();
+    cust_menu();
 }
 
  
