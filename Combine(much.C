@@ -254,7 +254,7 @@ void empl_menu() {
     int choice; // Variable to store the user's menu choice.
 
     while (1) { // Infinite loop to keep the menu running until the user exits.
-        // Display a user-friendly menu layout.
+        // Display a user-friendly menu layout
         printf("\n===============================================\n");
         printf("             === Employee Management ===        \n");
         printf("===============================================\n");
