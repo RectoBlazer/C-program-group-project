@@ -251,39 +251,46 @@ void admin_dashboard() {
 }
 
 void empl_menu() {
-    int choice;
+    int choice; // Variable to store user input for menu choice.
 
-    while (1) {
+    while (1) { // Infinite loop to keep the menu running until user exits.
+        // Display the menu
         printf("\n===============================================\n");
         printf("             === Employee Management ===        \n");
         printf("===============================================\n");
-        printf("1. Register Employee\n");
-        printf("2. Employee Login\n");
-        printf("3. Exit\n");
+        printf("1. Register Employee\n"); // Option to register a new employee.
+        printf("2. Employee Login\n");    // Option to log in as an employee.
+        printf("3. Exit\n");             // Option to exit to the main menu.
         printf("Enter your choice: ");
 
+        // Read user input and validate
         if (scanf("%d", &choice) != 1) {
+            // If input is not a number, clear the input buffer.
             while (getchar() != '\n');
             printf("\nInvalid input. Please enter a number.\n");
-            continue;
+            continue; // Prompt the user again.
         }
-        getchar();
+        getchar(); // Clear any extra newline character left in the input buffer.
 
+        // Handle user's choice
         switch (choice) {
             case 1:
-                registerEmployee();
+                registerEmployee(); // Call the function to register a new employee.
                 break;
             case 2:
+                // Call the login function and check its return value.
                 if (loginEmployee()) {
-                    employee_Page();
+                    employee_Page(); // If login is successful, open the employee page.
                 } else {
-                    printf("\nLogin failed. Please try again.\n");
+                    printf("\nLogin failed. Please try again.\n"); // Notify if login fails.
                 }
                 break;
             case 3:
+                // Exit the menu
                 printf("\nReturning to Main Menu...\n");
-                return;
+                return; // Ends the loop and exits the function.
             default:
+                // Handle invalid menu choices.
                 printf("\nInvalid choice. Please try again.\n");
         }
     }
