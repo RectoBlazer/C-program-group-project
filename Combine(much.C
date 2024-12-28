@@ -289,8 +289,16 @@ void empl_menu() {
     }
 }
 
-// Duplicate function definition removed
-
+// Helper function to check if a string contains only letters
+int is_alpha_string(const char *str) {
+    while (*str) {
+        if (!isalpha(*str)) {
+            return 0; // Non-letter character found
+        }
+        str++;
+    }
+    return 1; // All characters are letters
+}
 
 void register_Hotel_Administrator() {
     if (userCount >= MAX_USERS) {
@@ -303,40 +311,57 @@ void register_Hotel_Administrator() {
 
     printf("\n=== Register Hotel Administrator ===\n");
 
-    while (getchar() != '\n');
+    while (getchar() != '\n'); // Clear the input buffer
 
-    printf("Enter your name: ");
-    fgets(newUser.name, sizeof(newUser.name), stdin);
-    newUser.name[strcspn(newUser.name, "\n")] = '\0';  //for removeing newline character
+    // Name validation
+    do {
+        printf("Enter your name: ");
+        fgets(newUser.name, sizeof(newUser.name), stdin);
+        newUser.name[strcspn(newUser.name, "\n")] = '\0'; // Remove newline character
 
-    do{
-        printf("Enter your email adress: ");
+        if (!is_alpha_string(newUser.name)) {
+            printf("Invalid name. Please enter a name with letters only.\n");
+        }
+    } while (!is_alpha_string(newUser.name));
+
+    // Email validation
+    do {
+        printf("Enter your email address: ");
         fgets(newUser.contact, sizeof(newUser.contact), stdin);
         newUser.contact[strcspn(newUser.contact, "\n")] = '\0';
 
         if (!ValidateEmail(newUser.contact)) {
             printf("\nInvalid email. Please enter a valid email address.\n");
         }
-
     } while (!ValidateEmail(newUser.contact));
 
     printf("Enter a username: ");
     fgets(newUser.username, sizeof(newUser.username), stdin);
     newUser.username[strcspn(newUser.username, "\n")] = '\0';
 
-    do{
-        printf("Enter a password: (at least 8 characters, including uppercase letters and digits): ");
+    // Password validation
+    do {
+        printf("Enter a password (at least 8 characters, including uppercase letters and digits): ");
         fgets(newUser.password, sizeof(newUser.password), stdin);
         newUser.password[strcspn(newUser.password, "\n")] = '\0';
 
         if (!validatePassword(newUser.password)) {
             printf("\nInvalid password. Please follow the password requirements.\n");
         }
-
     } while (!validatePassword(newUser.password));
 
     strcpy(newUser.role, "Hotel Administrator");
     users[userCount++] = newUser;
+
+    // Save the new user to HotelAdmin.dat
+    FILE *file = fopen("HotelAdmin.dat", "ab");
+    if (file == NULL) {
+        printf("Error opening file to save hotel administrator data!\n");
+        MainMenu();
+        return;
+    }
+    fwrite(&newUser, sizeof(User), 1, file);
+    fclose(file);
 
     printf("\nHotel Administrator registered successfully!\n");
 
@@ -385,20 +410,33 @@ void login_Hotel_Administrator() {
     fgets(password, sizeof(password), stdin);
     password[strcspn(password, "\n")] = '\0';
 
-    for (int i = 0; i < userCount; i++) {
-        if (strcmp(users[i].username, username)==0 && strcmp(users[i].password,password)==0) {
-            if (strcmp(users[i].role, "Hotel Administrator") == 0) {
-                printf("\nLogin successful. Welcome, %s!\n",users[i].name);
+    // Open the HotelAdmin.dat file for reading
+    FILE *file = fopen("HotelAdmin.dat", "rb");
+    if (file == NULL) {
+        printf("Error opening file for reading.\n");
+        MainMenu();
+        return;
+    }
+    User storedUser;
+    int loginSuccessful = 0;
+    // Read user data from the file and validate credentials
+    while (fread(&storedUser, sizeof(User), 1, file) == 1) {
+        if (strcmp(storedUser.username, username) == 0 && strcmp(storedUser.password, password) == 0) {
+            if (strcmp(storedUser.role, "Hotel Administrator") == 0) {
+                printf("\nLogin successful. Welcome, %s!\n", storedUser.name);
                 admin_dashboard();
-                return;
+                loginSuccessful = 1;
+                break;
             } else {
                 printf("\nAccess denied. Only Hotel Administrators are allowed to log in.\n");
-                MainMenu();
+                break;
             }
         }
     }
-
-    printf("\nInvalid username or password. Please try again.\n");
+    fclose(file);
+    if (!loginSuccessful) {
+        printf("\nInvalid username or password. Please try again.\n");
+    }
     MainMenu();
 }
 void record_accommodation() {
