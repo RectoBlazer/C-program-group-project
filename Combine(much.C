@@ -438,9 +438,9 @@ void login_Hotel_Administrator() {
     while (fread(&storedUser, sizeof(User), 1, file) == 1) {
         if (strcmp(storedUser.username, username) == 0 && strcmp(storedUser.password, password) == 0) {
             if (strcmp(storedUser.role, "Hotel Administrator") == 0) {
-                ptintf("==============================\n");
+                printf("==============================\n");
                 printf("\n\tLogin successful. Welcome, %s!\n\n", storedUser.name);
-                ptintf("==============================\n");
+                printf("==============================\n");
                 admin_dashboard();
                 loginSuccessful = 1;
                 break;
@@ -836,7 +836,7 @@ void viewCustomerList() {
         // Display options after viewing
         printf("========================================\n");
         printf("Options:\n");
-        printf("1. Return to Employee Page\n");
+        printf("1. Return to main menus\n");
         printf("2. Refresh Customer List\n");
         printf("\nEnter your choice: ");
 
