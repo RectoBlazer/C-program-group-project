@@ -133,6 +133,9 @@ int validateEmail_Employee(const char *email);
 void generateAccessCode(char *accessCode, const char *department, int id);
 int doesAccommodationExist(const char *fileName, int id); // Placeholder.
 void debug_print_accommodations();
+void save_employees();
+void load_employees();
+int validateName_Employee(const char *name); // Function to validate employee name
 #include <stdio.h>
 
 int ValidateEmail(const char *email); // Function prototype
@@ -247,6 +250,7 @@ void admin_dashboard() {
 }
 
 void empl_menu() {
+    load_employees();
     int choice; // Variable to store the user's menu choice.
 
     while (1) { // Infinite loop to keep the menu running until the user exits.
@@ -563,7 +567,37 @@ void generateAccessCode(char *accessCode, const char *department, int id) {
     }
     accessCode[len + 3] = '\0';
 }
+void save_employees() {
+    FILE *file = fopen("employees.dat", "wb");
+    if (file == NULL) {
+        perror("Error opening file to save employee data");
+        return;
+    }
 
+    size_t written = fwrite(employees, sizeof(Employee), employeeCount, file);
+    if (written != employeeCount) {
+        fprintf(stderr, "Error writing employee data to file. Expected %d, but wrote %zu.\n", employeeCount, written);
+    } else {
+        printf("\n[Success] Employee data saved successfully!\n");
+    }
+
+    fclose(file);
+}
+void load_employees() {
+    FILE *file = fopen("employees.dat", "rb");
+    if (file == NULL) {
+        printf("No existing employee data found. Starting fresh.\n");
+        return;
+    }
+    size_t read = fread(employees, sizeof(Employee), MAX_USERS, file);
+    if (ferror(file)) {
+        perror("Error reading employee data from file");
+    } else {
+        employeeCount = (int)read; // Update the global employee count
+        printf("[Success] Loaded %d employees from the file.\n", employeeCount);
+    }
+    fclose(file);
+}
 // Register a new employee
 void registerEmployee() {
     if (employeeCount >= MAX_USERS) {
@@ -577,9 +611,15 @@ void registerEmployee() {
     printf("===============================================\n");
 
     // Name
-    printf("Enter name: ");
-    fgets(newEmployee.name_E, MAX_NAME_LENGTH, stdin);
-    newEmployee.name_E[strcspn(newEmployee.name_E, "\n")] = '\0';
+    do {
+        printf("Enter name: ");
+        fgets(newEmployee.name_E, MAX_NAME_LENGTH, stdin);
+        newEmployee.name_E[strcspn(newEmployee.name_E, "\n")] = '\0';
+
+        if (!validateName_Employee(newEmployee.name_E)) {
+            printf("\n[Error] Invalid name. Please enter a valid name (Real name, only letters, spaces, and hyphens are allowed).\n");
+        }
+    } while (!validateName_Employee(newEmployee.name_E));
 
     // Phone number
     do {
@@ -614,21 +654,14 @@ void registerEmployee() {
 
     int departmentChoice;
     scanf("%d", &departmentChoice);
-    getchar(); // Clear buffer
+   getchar(); // Clear buffer
 
-    const char *departments[] = {"Human Resources", "IT", "Finance", "Marketing", "Sales", "General"};
+    const char *departments[] = {"Human Resources", "IT", "Finance", "Marketing", "Sales"};
     if (departmentChoice < 1 || departmentChoice > 5) {
         printf("\n[Error] Invalid department choice. Defaulting to General.\n");
         strcpy(newEmployee.department_E, "General");
     } else {
         strcpy(newEmployee.department_E, departments[departmentChoice - 1]);
-    }
-        // Department selection
-    if (departmentChoice >= 1 && departmentChoice <= 5) {
-        strcpy(newEmployee.department_E, departments[departmentChoice - 1]);
-    } else {
-        printf("\n[Warning] Invalid choice. Defaulting to 'General'.\n");
-        strcpy(newEmployee.department_E, "General");
     }
 
     // Username
@@ -674,8 +707,36 @@ void registerEmployee() {
     printf("Department: %s\n", newEmployee.department_E);
     printf("Press Enter to continue to the main menu.\n");
     getchar();
+
+    // Save employees to file after registration
+    save_employees();
 }
 
+int validateName_Employee(const char *name) {
+    // Check if the name is empty
+    if (strlen(name) == 0) {
+        return 0; // Invalid: empty name
+    }
+
+    // Check if the name exceeds the maximum length
+    if (strlen(name) > MAX_NAME_LENGTH) {
+        return 0; // Invalid: name too long
+    }
+
+    // Check for valid characters (only letters, spaces, hyphens, and apostrophes)
+    for (int i = 0; name[i] != '\0'; i++) {
+        if (!isalpha(name[i]) && name[i] != ' ' && name[i] != '-' && name[i] != '\'') {
+            return 0; // Invalid: contains non-alphabetic characters
+        }
+    }
+
+    // Check for minimum length (optional)
+    if (strlen(name) < 2) {
+        return 0; // Invalid: name too short
+    }
+
+    return 1; // Valid name
+}
 // Employee login
 int loginEmployee() {
     char accessCode[MAX_ACCESS_CODE_LENGTH];
