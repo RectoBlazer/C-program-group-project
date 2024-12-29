@@ -126,6 +126,7 @@ int correct_password(const char *email, const char *password);
 int compare_dates(const char *date1, const char *date2);
 int is_valid_date(const char *date);
 void logout();
+void cust_choice_menu();
 int validatePassword_Employee(const char *password);
 int validatePhoneNumber_Employee(const char *phoneNumber);
 int validateEmail_Employee(const char *email);
