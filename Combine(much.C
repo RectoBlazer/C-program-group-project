@@ -291,15 +291,16 @@ void empl_menu() {
                 // Exit the menu and return control to the main program.
                 printf("\nReturning to Main Menu...\n");
                 return; // Exit the loop and end the function.
-            int isRunning = 1; // Use a flag to control the loop.
-                while (isRunning) {
-                            // Display menu and get choice.
-                    switch (choice) {
-                        case 3:
-                            printf("\nReturning to Main Menu...\n");
-                            isRunning = 0; // Set flag to exit the loop.
-                            break;
-                            }
+                int isRunning = 1; // Use a flag to control the loop.
+            while (isRunning) {
+                // Display menu and get choice.
+                switch (choice) {
+                    case 3:
+                        printf("\nReturning to Main Menu...\n");
+                        isRunning = 0; // Set flag to exit the loop.
+                        break;
+                }
+}
             default:
                 // Handle invalid menu choices gracefully.
                 printf("\nInvalid choice. Please try again.\n");
