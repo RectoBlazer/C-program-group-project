@@ -1260,6 +1260,11 @@ int login_customer() {
         scanf("%s", password);
     }
     printf("~~~~~~~~~~~~~~ Login successful! ~~~~~~~~~~~~~~\n");
+    cust_choice_menu();
+    return 0;
+}
+
+void cust_choice_menu(){
     int choice;
     printf("1. View list and information of Accommodation\n");
     printf("2. View all reservations\n");
@@ -1287,11 +1292,7 @@ int login_customer() {
             break;
         case 5:
             main();
-    }
-    return 0;
-}
-
-
+    }}
 
 void bill_information() {
     printf("\t\t\t*** Bill Information ***\n");
