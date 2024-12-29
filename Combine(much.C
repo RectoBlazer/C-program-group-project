@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -96,7 +97,7 @@ void viewCustomerList();
 void viewAccommodation();
 void registerEmployee();
 int loginEmployee();
-int MainMenu();
+int main();
 void cust_menu();
 void admin_dashboard();
 void register_Hotel_Administrator();
@@ -131,8 +132,6 @@ int validateEmail_Employee(const char *email);
 void generateAccessCode(char *accessCode, const char *department, int id);
 int doesAccommodationExist(const char *fileName, int id); // Placeholder.
 void debug_print_accommodations();
-void save_employees();
-int validateName_Employee(const char *name); // Function to validate employee name
 #include <stdio.h>
 
 int ValidateEmail(const char *email); // Function prototype
@@ -142,7 +141,7 @@ void empl_menu(); // Forward declaration for the employee menu
 void adm_menu(); // Forward declaration for the admin menu
 void cust_menu(); // Forward declaration for the customer menu
 
-int MainMenu() {
+int main() {
     int choice;
 
     while (1) {
@@ -226,7 +225,7 @@ void adm_menu() {
             login_Hotel_Administrator();
             break;
         case 3:
-            MainMenu();
+            main();
             break;
     }
 }
@@ -251,7 +250,7 @@ void admin_dashboard() {
                 view_customer_info();
                 break;
             case 3:
-                MainMenu();
+                main();
                 return;
         }
     }
@@ -319,7 +318,7 @@ int is_alpha_string(const char *str) {
 void register_Hotel_Administrator() {
     if (userCount >= MAX_USERS) {
         printf("\nUser limit reached. Cannot register more administrators.\n");
-        MainMenu();
+        main();
         return;
     }
 
@@ -373,7 +372,7 @@ void register_Hotel_Administrator() {
     FILE *file = fopen("HotelAdmin.dat", "ab");
     if (file == NULL) {
         printf("Error opening file to save hotel administrator data!\n");
-        MainMenu();
+        main();
         return;
     }
     fwrite(&newUser, sizeof(User), 1, file);
@@ -381,7 +380,7 @@ void register_Hotel_Administrator() {
 
     printf("\n--> Hotel Administrator registered successfully!\n");
 
-    MainMenu();
+    main();
 }
 
 int ValidateEmail(const char *email) {
@@ -430,7 +429,7 @@ void login_Hotel_Administrator() {
     FILE *file = fopen("HotelAdmin.dat", "rb");
     if (file == NULL) {
         printf("Error opening file for reading.\n");
-        MainMenu();
+        main();
         return;
     }
     User storedUser;
@@ -455,7 +454,7 @@ void login_Hotel_Administrator() {
     if (!loginSuccessful) {
         printf("\n--> Invalid username or password. Please try again.\n");
     }
-    MainMenu();
+    main();
 }
 void record_accommodation() {
     printf("\t\t\t*** Record Accommodation Info ***\n");
@@ -588,15 +587,9 @@ void registerEmployee() {
     printf("===============================================\n");
 
     // Name
-    do {
-        printf("Enter name: ");
-        fgets(newEmployee.name_E, MAX_NAME_LENGTH, stdin);
-        newEmployee.name_E[strcspn(newEmployee.name_E, "\n")] = '\0';
-
-        if (!validateName_Employee(newEmployee.name_E)) {
-            printf("\n[Error] Invalid name. Please enter a valid name (Real name, only letters, spaces, and hyphens are allowed).\n");
-        }
-    } while (!validateName_Employee(newEmployee.name_E));
+    printf("Enter name: ");
+    fgets(newEmployee.name_E, MAX_NAME_LENGTH, stdin);
+    newEmployee.name_E[strcspn(newEmployee.name_E, "\n")] = '\0';
 
     // Phone number
     do {
@@ -631,14 +624,21 @@ void registerEmployee() {
 
     int departmentChoice;
     scanf("%d", &departmentChoice);
-   getchar(); // Clear buffer
+    getchar(); // Clear buffer
 
-    const char *departments[] = {"Human Resources", "IT", "Finance", "Marketing", "Sales"};
+    const char *departments[] = {"Human Resources", "IT", "Finance", "Marketing", "Sales", "General"};
     if (departmentChoice < 1 || departmentChoice > 5) {
         printf("\n[Error] Invalid department choice. Defaulting to General.\n");
         strcpy(newEmployee.department_E, "General");
     } else {
         strcpy(newEmployee.department_E, departments[departmentChoice - 1]);
+    }
+        // Department selection
+    if (departmentChoice >= 1 && departmentChoice <= 5) {
+        strcpy(newEmployee.department_E, departments[departmentChoice - 1]);
+    } else {
+        printf("\n[Warning] Invalid choice. Defaulting to 'General'.\n");
+        strcpy(newEmployee.department_E, "General");
     }
 
     // Username
@@ -684,46 +684,6 @@ void registerEmployee() {
     printf("Department: %s\n", newEmployee.department_E);
     printf("Press Enter to continue to the main menu.\n");
     getchar();
-
-    // Save employees to file after registration
-    save_employees();
-}
-
-int validateName_Employee(const char *name) {
-    // Check if the name is empty
-    if (strlen(name) == 0) {
-        return 0; // Invalid: empty name
-    }
-
-    // Check if the name exceeds the maximum length
-    if (strlen(name) > MAX_NAME_LENGTH) {
-        return 0; // Invalid: name too long
-    }
-
-    // Check for valid characters (only letters, spaces, hyphens, and apostrophes)
-    for (int i = 0; name[i] != '\0'; i++) {
-        if (!isalpha(name[i]) && name[i] != ' ' && name[i] != '-' && name[i] != '\'') {
-            return 0; // Invalid: contains non-alphabetic characters
-        }
-    }
-
-    // Check for minimum length (optional)
-    if (strlen(name) < 2) {
-        return 0; // Invalid: name too short
-    }
-
-    return 1; // Valid name
-}
-// Function to save employees to a binary file
-void save_employees() {
-    FILE *file = fopen("employees.dat", "wb");
-    if (file == NULL) {
-        printf("Error opening file to save employee data!\n");
-        return;
-    }
-    fwrite(employees, sizeof(Employee), employeeCount, file);
-    fclose(file);
-    printf("\n[Success] Employee data saved successfully!\n");
 }
 
 // Employee login
@@ -817,7 +777,8 @@ void employee_Page() {
                 printf("\n========================================\n");
                 printf("       Logging out... Please wait        \n");
                 printf("========================================\n\n");
-                return; // Exit the loop and end the function.
+                empl_menu(); // Navigate to employee menu or main page
+                return;
 
             default:
                 printf("\nUnexpected error. Please try again.\n");
@@ -841,6 +802,8 @@ void load_customers() {
 
     fclose(file);
 }
+
+// Function to view customer list
 void viewCustomerList() {
     // Load customers from file
     load_customers();
@@ -863,13 +826,9 @@ void viewCustomerList() {
                 found = 1;
                 printf("[Customer %d]\n", i + 1);
                 printf("----------------------------------\n");
-                printf("Name            : %s %s\n", customers[i].first_name, customers[i].last_name);
-                printf("Birthday        : %s\n", customers[i].birthday); // Display birthday
-                printf("Email           : %s\n", customers[i].email);
-                printf("Passport Number : %s\n", customers[i].passport_num); // Display passport number
-                printf("Contact         : %s\n", customers[i].phone_num);
-                printf("Address         : %s\n", customers[i].address); // Display address
-                // Password is typically not displayed for security reasons
+                printf("Name    : %s %s\n", customers[i].first_name, customers[i].last_name);
+                printf("Contact : %s\n", customers[i].phone_num);
+                printf("Email   : %s\n", customers[i].email);
                 printf("----------------------------------\n\n");
             }
         }
@@ -877,7 +836,7 @@ void viewCustomerList() {
         // Display options after viewing
         printf("========================================\n");
         printf("Options:\n");
-        printf("1. Return to Employee Page\n");
+        printf("1. Return to main menus\n");
         printf("2. Refresh Customer List\n");
         printf("\nEnter your choice: ");
 
@@ -1338,7 +1297,7 @@ int login_customer() {
             bill_information();
             break;
         case 5:
-            MainMenu();
+            main();
     }
     return 0;
 }
@@ -1638,7 +1597,7 @@ void booking() {
                 cust_menu();
                 return;
             case 2:
-                MainMenu();
+                main();
                 return;
             case 3:
                 printf("\nThank you, bye!\n");
@@ -1746,29 +1705,4 @@ void booking() {
  
      fclose(file);
  }
-  int main() {
-    int choice;
-    MainMenu();
-    scanf("%d", &choice);
-    while (!(choice >= 1 && choice <= 4)) {
-        printf("Invalid choice, please try again (must be between 1 and 4): ");
-        scanf("%d", &choice);
-        while (!(choice >= 1 && choice <= 4)) {
-        printf("Invalid choice, please try again (must be between 1 and 5): ");
-        scanf("%d", &choice);
-    }
-    switch (choice) {
-        case 1:
-            adm_menu();
-            break;
-        case 2:
-            empl_menu();
-            break;
-        case 3:
-            cust_menu();
-            break;
-        case 4:
-            printf("Exiting the system. Goodbye!\n");
-    }
-    return 0;
-}}
+  
