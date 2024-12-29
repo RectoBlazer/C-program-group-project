@@ -188,9 +188,6 @@ int main() {
                 printf("   Have a great day! Goodbye!\n");
                 printf("============================================\n\n");
                 return 0;
-
-            default:
-                printf("\n[ERROR] Unexpected error occurred. Please try again.\n");
         
     }
 }}
