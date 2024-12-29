@@ -1348,6 +1348,7 @@ void bill_information() {
      if (!found) {
          printf("You have not booked any accommodation.\n");
      }
+    cust_choice_menu();
 
  }
 
@@ -1561,7 +1562,7 @@ int doesAccommodationExist(const char *filename, int accommodationID) {
     fclose(file);
     return 0; // ID does not exist
 }
- // Booking function 
+ 
  // Booking function 
 void booking() {
     char customer_name[50];
@@ -1668,7 +1669,7 @@ void booking() {
     printf("Booking saved successfully! Your Booking ID is: %d\n", new_booking.bookingID);
     printf("Total Nights: %d\n", new_booking.totalNights);
 
-    cust_menu();
+    cust_choice_menu();
 }
 
  
