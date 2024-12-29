@@ -140,7 +140,7 @@ int validatePassword(const char *password); // Function prototype
 void empl_menu(); // Forward declaration for the employee menu
 void adm_menu(); // Forward declaration for the admin menu
 void cust_menu(); // Forward declaration for the customer menu
-
+//main menu
 int main() {
     int choice;
 
@@ -156,21 +156,13 @@ int main() {
         printf("2. Employee\n");
         printf("3. Customer\n");
         printf("4. Exit\n\n");
+
         printf("Enter your choice (1-4): ");
-
-        // Input validation for choice
-        while (1) {
-            if (scanf("%d", &choice) != 1) {
-                printf("\n[ERROR] Invalid input. Please enter a number between 1 and 4: ");
-                while (getchar() != '\n'); // Clear invalid input
-            } else if (choice < 1 || choice > 4) {
-                printf("\n[ERROR] Invalid choice. Please select a valid option (1-4): ");
-            } else {
-                break; // Valid input
-            }
-        }
-        getchar(); // Consume newline
-
+        scanf("%d", &choice);
+        while (!(choice >= 1 && choice <=4)) {
+        printf("Invalid choice, please try again (must be between 1 and 4): ");
+        scanf("%d", &choice);
+    }
         printf("\n[LOG] User selected option: %d\n", choice);
 
         // Handle user choice
@@ -199,9 +191,9 @@ int main() {
 
             default:
                 printf("\n[ERROR] Unexpected error occurred. Please try again.\n");
-        }
+        
     }
-}
+}}
 
 void adm_menu() {
     int choice;
