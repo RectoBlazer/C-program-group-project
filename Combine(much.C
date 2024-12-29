@@ -97,7 +97,7 @@ void viewCustomerList();
 void viewAccommodation();
 void registerEmployee();
 int loginEmployee();
-int MainMenu();
+int main();
 void cust_menu();
 void admin_dashboard();
 void register_Hotel_Administrator();
@@ -140,8 +140,8 @@ int validatePassword(const char *password); // Function prototype
 void empl_menu(); // Forward declaration for the employee menu
 void adm_menu(); // Forward declaration for the admin menu
 void cust_menu(); // Forward declaration for the customer menu
-
-int MainMenu() {
+//main menu
+int main() {
     int choice;
 
     while (1) {
@@ -156,21 +156,13 @@ int MainMenu() {
         printf("2. Employee\n");
         printf("3. Customer\n");
         printf("4. Exit\n\n");
+
         printf("Enter your choice (1-4): ");
-
-        // Input validation for choice
-        while (1) {
-            if (scanf("%d", &choice) != 1) {
-                printf("\n[ERROR] Invalid input. Please enter a number between 1 and 4: ");
-                while (getchar() != '\n'); // Clear invalid input
-            } else if (choice < 1 || choice > 4) {
-                printf("\n[ERROR] Invalid choice. Please select a valid option (1-4): ");
-            } else {
-                break; // Valid input
-            }
-        }
-        getchar(); // Consume newline
-
+        scanf("%d", &choice);
+        while (!(choice >= 1 && choice <=4)) {
+        printf("Invalid choice, please try again (must be between 1 and 4): ");
+        scanf("%d", &choice);
+    }
         printf("\n[LOG] User selected option: %d\n", choice);
 
         // Handle user choice
@@ -199,9 +191,9 @@ int MainMenu() {
 
             default:
                 printf("\n[ERROR] Unexpected error occurred. Please try again.\n");
-        }
+        
     }
-}
+}}
 
 void adm_menu() {
     int choice;
@@ -225,7 +217,7 @@ void adm_menu() {
             login_Hotel_Administrator();
             break;
         case 3:
-            MainMenu();
+            main();
             break;
     }
 }
@@ -250,7 +242,7 @@ void admin_dashboard() {
                 view_customer_info();
                 break;
             case 3:
-                MainMenu();
+                main();
                 return;
         }
     }
@@ -318,7 +310,7 @@ int is_alpha_string(const char *str) {
 void register_Hotel_Administrator() {
     if (userCount >= MAX_USERS) {
         printf("\nUser limit reached. Cannot register more administrators.\n");
-        MainMenu();
+        main();
         return;
     }
 
@@ -332,7 +324,7 @@ void register_Hotel_Administrator() {
     do {
         printf("Enter your name: ");
         fgets(newUser.name, sizeof(newUser.name), stdin);
-        newUser.name[strcspn(newUser.name, "\n")] = '\0';
+        newUser.name[strcspn(newUser.name, "\n")] = '\0'; // Remove newline character
 
         if (!is_alpha_string(newUser.name)) {
             printf("Invalid name. Please enter a name with letters only.\n");
@@ -372,7 +364,7 @@ void register_Hotel_Administrator() {
     FILE *file = fopen("HotelAdmin.dat", "ab");
     if (file == NULL) {
         printf("Error opening file to save hotel administrator data!\n");
-        MainMenu();
+        main();
         return;
     }
     fwrite(&newUser, sizeof(User), 1, file);
@@ -380,7 +372,7 @@ void register_Hotel_Administrator() {
 
     printf("\n--> Hotel Administrator registered successfully!\n");
 
-    MainMenu();
+    main();
 }
 
 int ValidateEmail(const char *email) {
@@ -429,7 +421,7 @@ void login_Hotel_Administrator() {
     FILE *file = fopen("HotelAdmin.dat", "rb");
     if (file == NULL) {
         printf("Error opening file for reading.\n");
-        MainMenu();
+        main();
         return;
     }
     User storedUser;
@@ -440,12 +432,12 @@ void login_Hotel_Administrator() {
             if (strcmp(storedUser.role, "Hotel Administrator") == 0) {
                 printf("==============================\n");
                 printf("\n\tLogin successful. Welcome, %s!\n\n", storedUser.name);
-                printf("==============================\n");S
+                printf("==============================\n");
                 admin_dashboard();
                 loginSuccessful = 1;
                 break;
             } else {
-                printf("\n--> Access denied. Only Hotel Administrators are allowed to log in\n");
+                printf("\n--> Access denied. Only Hotel Administrators are allowed to log in.\n");
                 break;
             }
         }
@@ -454,7 +446,7 @@ void login_Hotel_Administrator() {
     if (!loginSuccessful) {
         printf("\n--> Invalid username or password. Please try again.\n");
     }
-    MainMenu();
+    main();
 }
 void record_accommodation() {
     printf("\t\t\t*** Record Accommodation Info ***\n");
@@ -836,7 +828,7 @@ void viewCustomerList() {
         // Display options after viewing
         printf("========================================\n");
         printf("Options:\n");
-        printf("1. Return to Employee Page\n");
+        printf("1. Return to main menus\n");
         printf("2. Refresh Customer List\n");
         printf("\nEnter your choice: ");
 
@@ -919,7 +911,7 @@ void viewAccommodation() {
         }
 
         printf("\nOptions:\n");
-        printf("1. Return to Employee Page\n");
+        printf("1. Return to main menu\n");
         printf("2. Refresh Accommodation List\n");
         printf("\nEnter your choice: ");
 
@@ -1297,7 +1289,7 @@ int login_customer() {
             bill_information();
             break;
         case 5:
-            MainMenu();
+            main();
     }
     return 0;
 }
@@ -1597,7 +1589,7 @@ void booking() {
                 cust_menu();
                 return;
             case 2:
-                MainMenu();
+                main();
                 return;
             case 3:
                 printf("\nThank you, bye!\n");
@@ -1705,29 +1697,4 @@ void booking() {
  
      fclose(file);
  }
-  int main() {
-    int choice;
-    MainMenu();
-    scanf("%d", &choice);
-    while (!(choice >= 1 && choice <= 4)) {
-        printf("Invalid choice, please try again (must be between 1 and 4): ");
-        scanf("%d", &choice);
-        while (!(choice >= 1 && choice <= 4)) {
-        printf("Invalid choice, please try again (must be between 1 and 5): ");
-        scanf("%d", &choice);
-    }
-    switch (choice) {
-        case 1:
-            adm_menu();
-            break;
-        case 2:
-            empl_menu();
-            break;
-        case 3:
-            cust_menu();
-            break;
-        case 4:
-            printf("Exiting the system. Goodbye!\n");
-    }
-    return 0;
-}}
+  
