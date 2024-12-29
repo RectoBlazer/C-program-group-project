@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -204,8 +205,10 @@ int MainMenu() {
 
 void adm_menu() {
     int choice;
-    printf("You selected: Hotel Administrator\n");
-    printf("1. Register\n");
+    printf("===============================================\n");
+    printf("\tYou selected: Hotel Administrator\n");
+    printf("===============================================\n");
+    printf("\n1. Register\n");
     printf("2. Login\n");
     printf("3. Back to main menu\n");
     printf("Please enter your choice: ");
@@ -375,7 +378,7 @@ void register_Hotel_Administrator() {
     fwrite(&newUser, sizeof(User), 1, file);
     fclose(file);
 
-    printf("\nHotel Administrator registered successfully!\n");
+    printf("\n--> Hotel Administrator registered successfully!\n");
 
     MainMenu();
 }
@@ -410,7 +413,7 @@ int ValidateEmail(const char *email) {
 void login_Hotel_Administrator() {
     char username[MAX_NAME_LENGTH], password[MAX_NAME_LENGTH];
 
-    printf("\n__Hotel Administrator Login __\n");
+    printf("\n=== Hotel Administrator Login ===\n");
 
     while (getchar() != '\n');
 
@@ -435,19 +438,21 @@ void login_Hotel_Administrator() {
     while (fread(&storedUser, sizeof(User), 1, file) == 1) {
         if (strcmp(storedUser.username, username) == 0 && strcmp(storedUser.password, password) == 0) {
             if (strcmp(storedUser.role, "Hotel Administrator") == 0) {
-                printf("\nLogin successful. Welcome, %s!\n", storedUser.name);
+                ptintf("==============================\n");
+                printf("\n\tLogin successful. Welcome, %s!\n\n", storedUser.name);
+                ptintf("==============================\n");
                 admin_dashboard();
                 loginSuccessful = 1;
                 break;
             } else {
-                printf("\nAccess denied. Only Hotel Administrators are allowed to log in.\n");
+                printf("\n--> Access denied. Only Hotel Administrators are allowed to log in.\n");
                 break;
             }
         }
     }
     fclose(file);
     if (!loginSuccessful) {
-        printf("\nInvalid username or password. Please try again.\n");
+        printf("\n--> Invalid username or password. Please try again.\n");
     }
     MainMenu();
 }
@@ -490,7 +495,8 @@ void record_accommodation() {
     if (written != 1) {
         perror("Error writing accommodation data to file");
     } else {
-        printf("Accommodation recorded successfully!\n");
+        printf("--> Accommodation recorded successfully!\n");
+        printf("----------------------------------------------------\n\n");
     }
 
     // Close the file
@@ -498,8 +504,8 @@ void record_accommodation() {
 }
 
 void view_customer_info() {
-    printf("\t\t\t*** View Customer Info ***\n");
-    printf("\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    printf("\n\t\t\t*** View Customer Info ***\n");
+    printf("\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 
     Customer existing_customer;
     FILE *file = fopen("customers.dat","rb");
