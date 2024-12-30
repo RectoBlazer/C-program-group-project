@@ -979,7 +979,7 @@ void viewAccommodation() {
         }
 
         printf("\nOptions:\n");
-        printf("1. Return to main menu\n");
+        printf("1. Return to Employee Page\n");
         printf("2. Refresh Accommodation List\n");
         printf("\nEnter your choice: ");
 
