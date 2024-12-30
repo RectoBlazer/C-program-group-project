@@ -1767,5 +1767,6 @@ void booking() {
      }
  
      fclose(file);
+    cust_choice_menu();
  }
   
