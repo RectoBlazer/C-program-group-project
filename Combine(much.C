@@ -248,7 +248,7 @@ void admin_dashboard() {
         }
     }
 }
-
+//Employee menu
 void empl_menu() {
     load_employees();
     int choice; // Variable to store the user's menu choice.
@@ -787,7 +787,7 @@ int loginEmployee() {
 }
 
 
-
+//Employee Page
 void employee_Page() {
     int choice;
 
@@ -931,6 +931,7 @@ void viewCustomerList() {
         }
     }
 }
+//loadAccomodation
 void load_accommodations() {
     FILE *file = fopen("accommodations.dat", "rb");
     if (file == NULL) {
@@ -954,17 +955,23 @@ void load_accommodations() {
     // Debug log
     printf("[DEBUG] Loaded %d accommodations from file.\n", accommodationCount);
 }
+//ViewAccommodation
 void viewAccommodation() {
+    // Load the list of accommodations from a data source
     load_accommodations();
 
+    // Start an infinite loop for the user interface
     while (1) {
+        // Display the header for the accommodation list
         printf("\n=============================\n");
         printf("     Accommodation List    \n");
         printf("=============================\n\n");
 
+        // Check if there are any accommodations available
         if (accommodationCount == 0) {
             printf("\nNo accommodations available at the moment.\n");
         } else {
+            // Display the list of available accommodations
             printf("\n--- List of Available Accommodations ---\n\n");
             for (int i = 0; i < accommodationCount; i++) {
                 printf("[Accommodation %d]\n", i + 1);
@@ -978,32 +985,39 @@ void viewAccommodation() {
             }
         }
 
+        // Provide options for the user to return or refresh
         printf("\nOptions:\n");
         printf("1. Return to Employee Page\n");
         printf("2. Refresh Accommodation List\n");
         printf("\nEnter your choice: ");
 
         int choice;
+        // Loop to validate user input
         while (1) {
             if (scanf("%d", &choice) != 1) {
+                // Handle invalid input (non-integer values)
                 printf("Invalid input. Please enter 1 or 2: ");
-                while (getchar() != '\n'); // Clear invalid input
+                while (getchar() != '\n'); // Clear invalid input buffer
             } else if (choice < 1 || choice > 2) {
+                // Handle out-of-range input
                 printf("Invalid choice. Please select a valid option (1 or 2): ");
             } else {
-                break;
+                break; // Valid input, exit the loop
             }
         }
-        getchar(); // Consume newline
+        getchar(); // Consume newline character after scanf
 
+        // Handle the user's choice
         if (choice == 1) {
-            return; // Exit the function
+            return; // Exit the function to return to the previous menu
         } else if (choice == 2) {
+            // Reload the accommodations list
             printf("\n[LOG] Refreshing accommodation list...\n");
             load_accommodations();
         }
     }
 }
+//debugprintaccommodations
 void debug_print_accommodations() {
     printf("\n[DEBUG] Current Accommodations:\n");
     for (int i = 0; i < accommodationCount; i++) {
@@ -1018,17 +1032,22 @@ void debug_print_accommodations() {
 }
 
 int validatePassword(const char *password) {
-    int hasUpper = 0, hasDigit = 0, length = strlen(password);
+    int hasUpper = 0;  // Flag to check for uppercase letters
+    int hasDigit = 0;  // Flag to check for digits
+    int length = strlen(password); // Calculate the length of the password
 
+    // Check if password length is at least 8
     if (length < 8) {
-        return 0;
+        return 0; // Invalid password
     }
 
+    // Loop through each character of the password
     for (int i = 0; i < length; i++) {
-        if (isupper(password[i])) hasUpper = 1;
-        if (isdigit(password[i])) hasDigit = 1;
+        if (isupper(password[i])) hasUpper = 1; // Check for uppercase letter
+        if (isdigit(password[i])) hasDigit = 1; // Check for digit
     }
 
+    // Return true (1) if both criteria are met, otherwise false (0)
     return hasUpper && hasDigit;
 }
 
