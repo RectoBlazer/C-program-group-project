@@ -39,7 +39,7 @@ typedef struct {
     int accommodationID;
     char type[50];
     char description[100];
-    double price;
+    float price;
     int Available;
 } Accommodation;
 
@@ -973,7 +973,7 @@ void viewAccommodation() {
                 printf("ID         : %d\n", accommodations[i].accommodationID);
                 printf("Type       : %s\n", accommodations[i].type);
                 printf("Description: %s\n", accommodations[i].description);
-                printf("Price      : $%.2f\n", accommodations[i].price);
+                printf("Price      : $ %2f\n", accommodations[i].price);
                 printf("Status     : %s\n", accommodations[i].Available ? "Available" : "Booked");
                 printf("----------------------------------\n\n");
             }
