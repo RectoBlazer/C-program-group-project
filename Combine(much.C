@@ -863,23 +863,6 @@ void load_customers() {
 
     fclose(file);
 }
-
-// Function to load customers from the binary file
-void load_customers() {
-    FILE *file = fopen("customers.dat", "rb");
-    if (file == NULL) {
-        printf("Error opening file to read customer data!\n");
-        customerCount = 0; // Reset count if file cannot be opened
-        return;
-    }
-
-    customerCount = 0; // Reset count before loading
-    while (fread(&customers[customerCount], sizeof(Customer), 1, file) == 1) {
-        customerCount++;
-    }
-
-    fclose(file);
-}
 void viewCustomerList() {
     // Load customers from file
     load_customers();
@@ -948,7 +931,29 @@ void viewCustomerList() {
         }
     }
 }
+void load_accommodations() {
+    FILE *file = fopen("accommodations.dat", "rb");
+    if (file == NULL) {
+        perror("Error opening file to read accommodation data");
+        accommodationCount = 0; // Reset count if file cannot be opened
+        return;
+    }
+    accommodationCount = 0; // Reset count before loading
+    while (fread(&accommodations[accommodationCount], sizeof(Accommodation), 1, file) == 1) {
+        accommodationCount++;
+        if (accommodationCount >= MAX_ACCOMMODATIONS) {
+            printf("Warning: Maximum number of accommodations reached. Some records may not be loaded.\n");
+            break;
+        }
+    }
+    if (ferror(file)) {
+        perror("Error reading accommodation data from file");
+    }
 
+    fclose(file);
+    // Debug log
+    printf("[DEBUG] Loaded %d accommodations from file.\n", accommodationCount);
+}
 void viewAccommodation() {
     load_accommodations();
 
