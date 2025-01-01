@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -16,7 +15,7 @@
 #define D_PHONE_NUM 11
 #define D_ADDRESS 100
 #define D_PASSWORD 25
-#define MAX_CONTACT_LENGTH 50
+#define MAX_CONTACT_LENGTH 503
 #define MAX_USERNAME_LENGTH 50
 #define MAX_PASSWORD_LENGTH 50
 #define MAX_ACCESS_CODE_LENGTH 15
@@ -95,6 +94,7 @@ void view_customer_info();
 void employee_Page();
 void viewCustomerList();
 void viewAccommodation();
+void viewAccommodation_1();
 void registerEmployee();
 int loginEmployee();
 int main();
@@ -987,7 +987,7 @@ void viewAccommodation() {
 
         // Provide options for the user to return or refresh
         printf("\nOptions:\n");
-        printf("1. Return to Employee Page\n");
+        printf("1. Return to Main Page\n");
         printf("2. Refresh Accommodation List\n");
         printf("\nEnter your choice: ");
 
@@ -1369,7 +1369,7 @@ void cust_choice_menu(){
     }
     switch (choice) {
         case 1:
-            viewAccommodation();
+            viewAccommodation_1();
             break;
         case 2:
             view_reservations();
@@ -1787,4 +1787,64 @@ void booking() {
      fclose(file);
     cust_choice_menu();
  }
-  
+void viewAccommodation_1() {
+    // Load the list of accommodations from a data source
+    load_accommodations();
+
+    // Start an infinite loop for the user interface
+    while (1) {
+        // Display the header for the accommodation list
+        printf("\n=============================\n");
+        printf("     Accommodation List    \n");
+        printf("=============================\n\n");
+
+        // Check if there are any accommodations available
+        if (accommodationCount == 0) {
+            printf("\nNo accommodations available at the moment.\n");
+        } else {
+            // Display the list of available accommodations
+            printf("\n--- List of Available Accommodations ---\n\n");
+            for (int i = 0; i < accommodationCount; i++) {
+                printf("[Accommodation %d]\n", i + 1);
+                printf("----------------------------------\n");
+                printf("ID         : %d\n", accommodations[i].accommodationID);
+                printf("Type       : %s\n", accommodations[i].type);
+                printf("Description: %s\n", accommodations[i].description);
+                printf("Price      : $ %2f\n", accommodations[i].price);
+                printf("Status     : %s\n", accommodations[i].Available ? "Available" : "Booked");
+                printf("----------------------------------\n\n");
+            }
+        }
+
+        // Provide options for the user to return or refresh
+        printf("\nOptions:\n");
+        printf("1. Return to customer Page\n");
+        printf("2. Refresh Accommodation List\n");
+        printf("\nEnter your choice: ");
+
+        int choice;
+        // Loop to validate user input
+        while (1) {
+            if (scanf("%d", &choice) != 1) {
+                // Handle invalid input (non-integer values)
+                printf("Invalid input. Please enter 1 or 2: ");
+                while (getchar() != '\n'); // Clear invalid input buffer
+            } else if (choice < 1 || choice > 2) {
+                // Handle out-of-range input
+                printf("Invalid choice. Please select a valid option (1 or 2): ");
+            } else {
+                break; // Valid input, exit the loop
+            }
+        }
+        getchar(); // Consume newline character after scanf
+
+        // Handle the user's choice
+        if (choice == 1) {
+            cust_choice_menu();
+        } else if (choice == 2) {
+            // Reload the accommodations list
+            printf("\n[LOG] Refreshing accommodation list...\n");
+            load_accommodations();
+        }
+    }
+}
